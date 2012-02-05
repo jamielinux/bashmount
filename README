@@ -1,0 +1,79 @@
+About
+----------------------------------------
+
+bashmount is a menu-driven bash script that uses udisks to easily mount,
+unmount or eject removable devices, without dependencies on any GUI or desktop
+environment. An extensive configuration file allows many aspects of the script
+to be modified and custom commands to be run on devices.
+
+    == IMPORTANT ======================================================
+    |  The configuration file should be edited first before running.  |
+    |  Make sure to always check the configuration file provided in   |
+    |  each new release, as some options may be changed or added.     |
+    ===================================================================
+
+This script does not provide automounting of removable media as there are
+already many ways to automount. The file managers in GNOME and KDE handle
+automounting, while udev rules or scripts like Udiskie can be used in other
+environments. However, bashmount can be used alongside any of these, and
+should work in any recent distribution that uses udisks.
+
+
+
+Dependencies
+----------------------------------------
+
+ * bash
+ * dbus
+ * udisks
+
+This script should work on all recent distributions that use udisks. Older
+distributions may still be using the deprecated HAL, which is not supported
+by bashmount.
+
+
+
+Installation
+----------------------------------------
+
+1. As root, copy "bashmount" to "/usr/bin" or any other location in $PATH:
+
+      install -m755 bashmount /usr/bin/bashmount
+
+2. Backup any existing configuration files.
+
+3. As root, copy "bashmount.conf" to "/etc/bashmount.conf" for global
+   configuration:
+
+      install -m644 bashmount.conf /etc/bashmount.conf
+
+4. Optionally, copy "bashmount.conf" to "$HOME/.config/bashmount/config"
+   for per-user configuration:
+
+      install -d -m755 $HOME/.config/bashmount/
+      install -m644 bashmount.conf $HOME/.config/bashmount/config
+
+5. Ignore this step if you are using a graphical login manager.
+
+   If you do not use a graphical login manager, consult the documentation
+   provided by your distribution on how to run a session with consolekit.
+   The following instructions may not work in all distributions.
+
+   Place the following in "$HOME/.xinitrc":
+
+        if test -z "${DBUS_SESSION_BUS_ADDRESS}"; then
+            eval "$(dbus-launch --sh-syntax --exit-with-session)"
+        fi
+        exec ck-launch-session [window_manager]
+
+6. Make life a bit easier by setting an alias in "$HOME/.bashrc":
+
+        alias bm='bashmount'
+
+
+
+Contact
+----------------------------------------
+
+If you find any bugs, or have any comments, criticisms or requests, then send
+an email to: jamie tomoyolinux co uk

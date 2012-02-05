@@ -1,0 +1,75 @@
+ChangeLog
+
+1.6.1 [2012-02-05]
+ * Fix a small bug in print_submenu_commands
+ * Keep lines of code more strictly within 80 character width limit
+ * Change default filemanager to the shell
+ * Aesthetic improvements to the code
+
+1.6.0 [2011-11-23]
+ * Add ability to blacklist devices based on arbitrary string matches
+
+1.5.3 [2011-11-04]
+ * Make sure the mount status is up to date in print_submenu_commands
+
+1.5.2 [2011-11-04]
+ * Fix bugs in print_submenu_commands due to an incorrect variable declaration
+   and a typo
+
+1.5.1 [2011-09-20]
+ * Fix bug in fancy_sort due to an incorrect variable declaration
+
+1.5.0 [2011-09-16]
+ * Refactor code
+ * Unset GREP_OPTIONS in case the user has it set in their environment
+ * Move a misplaced printf '\n'
+ * Fix handling of functions that have not been set in the configuration file
+ * Remove specification of the udisks command path in the configuration file
+ * Add some more comments
+
+1.4.1 [2011-09-08]
+ * Add declaration of two variables
+
+1.4.0 [2011-09-06]
+ * Refactor code
+ * Add options to run any arbitrary commands immediately after a successful
+   mount or unmount operation, such as commands to spin down a device
+ * If an operation fails in the device sub-menu, do not return to the top menu
+
+1.3.1 [2011-05-31]
+ * Fix display of optical device number
+
+1.3.0 [2011-05-26]
+ * Fix the declaration of arrays
+ * Fix handling of devices with 10 or more partitions
+ * Add a fancy_sort option in the configuration file for a very hacky way to
+   make sure /dev/sdc11 does not come before /dev/sdc2 in the menu (which
+   occurs due to a shortcoming of the sort command)
+ * Use printf instead of echo
+
+1.2.0 [2011-05-23]
+ * Refactor code to be more compliant with BASH best practices
+ * Fix "unmount all" command
+ * Exit correctly if there are errors on sourcing the configuration file
+ * Various minor aesthetic improvements
+
+1.1.4 [2011-05-19]
+ * Refactor code
+
+1.1.3 [2011-05-08]
+ * Fix numbering and display of devices
+
+1.1.2 [2011-05-08]
+ * Improve configuration file
+
+1.1.1 [2011-05-08]
+ * Fix handling of /dev/mmcblk* devices both in the script and in the
+   configuration file
+
+1.1.0 [2011-05-08]
+ * Improve configuration file
+ * Improve help screen
+ * Add support for matching /dev/mmcblk* devices such as SD card readers
+
+1.0.0 [2011-04-27]
+ * Initial release
