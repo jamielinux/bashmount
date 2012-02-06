@@ -64,8 +64,8 @@ declare -i run_post_unmount=0
 declare -a blacklist=( )
 
 filemanager() {
-	error "No command specified in 'bashmount.conf'."
-	return 1
+	cd "${1}" && ${SHELL}
+	exit 0
 }
 post_mount() {
 	error "No command specified in 'bashmount.conf'."
