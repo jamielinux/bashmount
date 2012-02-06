@@ -31,8 +31,9 @@ Installation
         mkdir -p $HOME/.config/bashmount/
         install -m644 bashmount.conf $HOME/.config/bashmount/config
 
-5. Optionally, copy "bashmount.1.gz" to "/usr/share/man/man1":
+5. Optionally, copy "bashmount.1" to "/usr/share/man/man1":
 
+        gzip -9 bashmount.1
         install -m644 bashmount.1.gz /usr/share/man/man1/bashmount.1.gz
 
 6. Ignore this step if you are using a graphical login manager.
