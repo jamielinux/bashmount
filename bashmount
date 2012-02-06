@@ -2,7 +2,7 @@
 
 #=============================================================================#
 #        FILE: bashmount                                                      #
-#     VERSION: 1.6.1                                                          #
+#     VERSION: 1.6.2                                                          #
 # DESCRIPTION: bashmount is a menu-driven bash script that uses udisks to     #
 #              easily mount, unmount or eject removable devices without       #
 #              dependencies on any GUI or desktop environment. An extensive   #
@@ -28,7 +28,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 
 
-declare -r VERSION="1.6.1"
+declare -r VERSION="1.6.2"
 
 #-------------------------------------#
 #           CONFIGURATION             #
