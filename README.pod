@@ -1,0 +1,36 @@
+=head1 NAME
+
+bashmount - tool to mount and unmount removable media
+
+=head1 SYNOPSIS
+
+I<bashmount>
+
+=head1 DESCRIPTION
+
+bashmount is a menu-driven bash script that uses udisks to easily mount,
+unmount or eject removable devices, without dependencies on any GUI or
+desktop environment. An extensive configuration file allows custom commands
+to be run on devices.
+
+bashmount can also be used alongside any automounting solutions, such as
+graphical file managers, udev rules or Udiskie.
+
+=head1 FILES AND DIRECTORIES
+
+=over 4
+
+=item C</etc/bashmount.conf>
+
+Default configuration file
+
+=back
+
+=head1 BUGS
+
+If you find any bugs, please send an email to the author, or create a new
+issue at L<https://github.com/jamielinux/bashmount/issues>.
+
+=head1 AUTHOR
+
+Jamie Nguyen E<lt>jamie@tomoyolinux.co.ukE<gt>
