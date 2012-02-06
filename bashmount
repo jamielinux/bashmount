@@ -300,59 +300,76 @@ print_help_sub() {
 #-------------------------------------#
 # {{{
 
+#############################
+### INFORMATION RETRIEVAL ###
+#############################
+
 # Functions to retrieve information. These functions simply parse the output
 # of udisks --show-info.
+
+# arg 1: device file
 info_blank() {
 	udisks --show-info ${1} \
 		| grep -m 1 -w "^[[:space:]]*blank:" \
 		| awk '{print $2}'
 }
+# arg 1: device file
 info_has_media() {
 	udisks --show-info ${1} \
 		| grep -m 1 -w "^[[:space:]]*has media:" \
 		| awk '{print $3}'
 }
+# arg 1: device file
 info_internal() {
 	udisks --show-info ${1} \
 		| grep -m 1 -w "^[[:space:]]*system internal:" \
 		| awk '{print $3}'
 }
+# arg 1: device file
 info_label() {
 	local info_label="$(udisks --show-info ${1} \
 		| grep -m 1 -w "^  label:" \
 		| awk '{$1="";print substr($0, index($0,$2))}')"
 	[[ -n "${info_label}" ]] && printf '%s\n' "${info_label}"
 }
+# arg 1: device file
 info_media() {
 	udisks --show-info ${1} \
 		| grep -m 1 -w "^[[:space:]]*media:" \
 		| awk '{print $2}'
 }
+# arg 1: device file
 info_model() {
 	udisks --show-info ${1} \
 		| grep -m 1 -w "^[[:space:]]*model:" \
 		| awk '{$1="";print substr($0, index($0,$2))}'
 }
+# arg 1: device file
 info_mounted() {
 	udisks --show-info ${1} \
 		| grep -m 1 -w "^[[:space:]]*is mounted:" \
 		| awk '{print $3}'
 }
+# arg 1: device file
 info_mountpath() {
 	udisks --show-info ${1} \
 		| grep -m 1 -w "^[[:space:]]*mount paths:" \
 		| awk '{$1="";$2="";print substr($0, index($0,$3))}'
 }
+# arg 1: device file
 info_type() {
 	udisks --show-info ${1} \
 		| grep -m 1 -w "^[[:space:]]*type:" \
 		| awk '{print $2}'
 }
+# arg 1: device file
 info_vendor() {
 	udisks --show-info ${1} \
 		| grep -m 1 -w "^[[:space:]]*vendor:" \
 		| awk '{$1="";print substr($0, index($0,$2))}'
 }
+
+# arg 1: integer
 # The size of the device/partition is given in bytes, so let's convert that
 # to something more readable. Rounding done in bash is not accurate at all
 # but we'll mitigate that by only rounding when the numbers get quite large.
@@ -372,6 +389,7 @@ convert_size() {
 
 	printf '%s\n' "${new_size}"
 }
+# arg 1: device file
 info_device_size() {
 	local info_device_size=
 
@@ -384,6 +402,7 @@ info_device_size() {
 		printf '%s\n' "${info_device_size}"
 	fi
 }
+# arg 1: device file
 info_partition_size() {
 	local info_partition_size=
 
@@ -397,8 +416,11 @@ info_partition_size() {
 	fi
 }
 
-# Functions to perform udisks commands.
+###########################
+### DEVICE MANIPULATION ###
+###########################
 
+# arg 1: device file
 # Here we check if the device actually exists, just in case the list of
 # available devices has not been refreshed for a while.
 check_device() {
@@ -413,6 +435,7 @@ check_device() {
 
 	return 0
 }
+# arg 1: device file
 # Eject the device, unmounting with a call to action_unmount if required.
 action_eject() {
 	local -i info_mounted=
@@ -436,11 +459,13 @@ action_eject() {
 
 	enter_to_continue
 }
+# arg 1: device file
 # Pipe the device information into a pager for easy viewing.
 action_info() {
 	check_device "${1}" || return 1
 	udisks --show-info "${1}" | less
 }
+# arg 1: device file
 # Mount the device if it is not already mounted, and run the post_mount hook
 # after a successful mount operation if it has been enabled.
 action_mount() {
@@ -476,6 +501,7 @@ action_mount() {
 
 	enter_to_continue
 }
+# arg 1: device file
 # Open the device with the filemanager specified in the configuration file,
 # mounting with a call to action_mount if required.
 action_open() {
@@ -516,6 +542,7 @@ action_open() {
 	filemanager "${info_mountpath}"
 	enter_to_continue
 }
+# arg 1: device file
 # Unmount the device if it is not already unmounted, and run the post_unmount
 # hook after a successful unmount operation if it has been enabled.
 action_unmount() {
@@ -604,7 +631,6 @@ fancy_sort() {
 		(( ++array_position )); continue
 	done
 }
-
 # }}}
 
 #-------------------------------------#
