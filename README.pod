@@ -16,11 +16,11 @@ to be run on devices.
 bashmount can also be used alongside any automounting solutions, such as
 graphical file managers, udev rules or Udiskie.
 
-=head1 FILES AND DIRECTORIES
+=head1 FILES
 
 =over 4
 
-=item C</etc/bashmount.conf>
+=item B</etc/bashmount.conf>
 
 Default configuration file
 
