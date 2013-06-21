@@ -33,4 +33,4 @@ issue at L<https://github.com/jamielinux/bashmount/issues>.
 
 =head1 AUTHOR
 
-Jamie Nguyen E<lt>jamie@tomoyolinux.co.ukE<gt>
+Jamie Nguyen E<lt>j@jamielinux.comE<gt>
