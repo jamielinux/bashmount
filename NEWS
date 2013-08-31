@@ -1,3 +1,9 @@
+bashmount 2.0.0alpha1 (2013-08-31)
+
+  - Port to udisks2
+  - New configuration file
+  - New dependency on `eject`
+
 bashmount 1.6.2 (2012-02-06)
 
   - Add some comments

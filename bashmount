@@ -2,7 +2,7 @@
 
 #=============================================================================#
 #        FILE: bashmount                                                      #
-#     VERSION: 1.6.2                                                          #
+#     VERSION: 2.0.0alpha1                                                    #
 # DESCRIPTION: bashmount is a menu-driven bash script that uses udisks to     #
 #              easily mount, unmount or eject removable devices without       #
 #              dependencies on any GUI or desktop environment. An extensive   #
@@ -12,7 +12,7 @@
 #      AUTHOR: Jamie Nguyen                                                   #
 #=============================================================================#
 
-# Copyright (C) 2011 Jamie Nguyen
+# Copyright (C) 2013 Jamie Nguyen
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License v2 as published by the
@@ -28,7 +28,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 
 
-declare -r VERSION="1.6.2"
+declare -r VERSION="2.0.0alpha1"
 
 #-------------------------------------#
 #           CONFIGURATION             #
@@ -40,9 +40,9 @@ unset GREP_OPTIONS
 
 # Set some defaults for the configuration variables. See bashmount.conf for
 # more information.
-declare optical_devices="-E ^/dev/sr[0-9]+"
-declare removable_devices="-E ^/dev/sd[b-z][0-9]*|^/dev/mmcblk[0-9]+p*[0-9]*"
-declare mount_options="--mount-options nosuid,noexec,noatime"
+declare optical_devices="-E /dev/sr[0-9]+"
+declare removable_devices="-E /dev/sd[b-z][0-9]+|/dev/mmcblk[0-9]+p*[0-9]*"
+declare mount_options="--options nosuid,noexec,noatime"
 
 declare -i show_removable=1
 declare -i show_optical=1
@@ -97,9 +97,15 @@ if [[ -f "${CONFIGFILE}" ]]; then
     fi
 fi
 
-type -p udisks >/dev/null 2>&1
+type -p udisksctl >/dev/null 2>&1
 if (( $? != 0 )); then
-    printf '%s\n' "bashmount: 'udisks': command not found"
+    printf '%s\n' "bashmount: 'udisksctl': command not found"
+    exit 69
+fi
+
+type -p eject >/dev/null 2>&1
+if (( $? != 0 )); then
+    printf '%s\n' "bashmount: 'eject': command not found"
     exit 69
 fi
 # }}}
@@ -305,68 +311,44 @@ print_help_sub() {
 #############################
 
 # Functions to retrieve information. These functions simply parse the output
-# of udisks --show-info.
+# of `udisksctl info`.
 
 # arg 1: device file
-info_blank() {
-    udisks --show-info ${1} \
-        | grep -m 1 -w "^[[:space:]]*blank:" \
-        | awk '{print $2}'
-}
-# arg 1: device file
-info_has_media() {
-    udisks --show-info ${1} \
-        | grep -m 1 -w "^[[:space:]]*has media:" \
-        | awk '{print $3}'
-}
-# arg 1: device file
 info_internal() {
-    udisks --show-info ${1} \
-        | grep -m 1 -w "^[[:space:]]*system internal:" \
-        | awk '{print $3}'
+    local -i retval=0
+    x="$(__info_internal "${1}")"
+    [[ "${x}" == "true" ]] && retval=1
+    echo "${retval}"
+}
+__info_internal() {
+    udisksctl info --block-device ${1} \
+        | grep -m 1 -w "^[[:space:]]*HintSystem:" \
+        | awk '{print $2}'
 }
 # arg 1: device file
 info_label() {
-    local info_label="$(udisks --show-info ${1} \
-        | grep -m 1 -w "^  label:" \
-        | awk '{$1="";print substr($0, index($0,$2))}')"
-    [[ -n "${info_label}" ]] && printf '%s\n' "${info_label}"
-}
-# arg 1: device file
-info_media() {
-    udisks --show-info ${1} \
-        | grep -m 1 -w "^[[:space:]]*media:" \
-        | awk '{print $2}'
-}
-# arg 1: device file
-info_model() {
-    udisks --show-info ${1} \
-        | grep -m 1 -w "^[[:space:]]*model:" \
+    udisksctl info --block-device ${1} \
+        | grep -m 1 -w "^[[:space:]]*IdLabel:" \
         | awk '{$1="";print substr($0, index($0,$2))}'
 }
 # arg 1: device file
 info_mounted() {
-    udisks --show-info ${1} \
-        | grep -m 1 -w "^[[:space:]]*is mounted:" \
-        | awk '{print $3}'
+    local -i retval=0
+    x="$(info_mountpath "${1}")"
+    [[ -n "${x}" ]] && retval=1
+    echo "${retval}"
 }
 # arg 1: device file
 info_mountpath() {
-    udisks --show-info ${1} \
-        | grep -m 1 -w "^[[:space:]]*mount paths:" \
-        | awk '{$1="";$2="";print substr($0, index($0,$3))}'
+    udisksctl info --block-device ${1} \
+        | grep -m 1 -w "^[[:space:]]*MountPoints:" \
+        | awk '{$1="";print substr($0, index($0,$2))}'
 }
 # arg 1: device file
 info_type() {
-    udisks --show-info ${1} \
-        | grep -m 1 -w "^[[:space:]]*type:" \
+    udisksctl info --block-device ${1} \
+        | grep -m 1 -w "^[[:space:]]*IdType:" \
         | awk '{print $2}'
-}
-# arg 1: device file
-info_vendor() {
-    udisks --show-info ${1} \
-        | grep -m 1 -w "^[[:space:]]*vendor:" \
-        | awk '{$1="";print substr($0, index($0,$2))}'
 }
 
 # arg 1: integer
@@ -393,8 +375,8 @@ convert_size() {
 info_device_size() {
     local info_device_size=
 
-    info_device_size="$(udisks --show-info ${1} \
-        | grep -m 1 -w "^[[:space:]]*size:" \
+    info_device_size="$(udisksctl info --block-device ${1} \
+        | grep -m 1 -w "^[[:space:]]*Size:" \
         | awk '{print $2}')"
 
     if [[ -n "${info_device_size}" ]]; then
@@ -406,8 +388,8 @@ info_device_size() {
 info_partition_size() {
     local info_partition_size=
 
-    info_partition_size="$(udisks --show-info ${1} \
-        | grep -m 1 -w "  size:" \
+    info_partition_size="$(udisksctl info --block-device ${1} \
+        | grep -m 1 -w "^[[:space:]]*Size:" \
         | awk '{print $2}')"
 
     if [[ -n "${info_partition_size}" ]]; then
@@ -424,7 +406,7 @@ info_partition_size() {
 # Here we check if the device actually exists, just in case the list of
 # available devices has not been refreshed for a while.
 check_device() {
-    udisks --enumerate-device-files | grep -ow ^${1}$ >/dev/null 2>&1
+    udisksctl dump | grep "^[[:space:]]*Device:" | grep -ow ${1}$ >/dev/null 2>&1
 
     if (( $? != 0 )); then
         printf '\n'
@@ -450,7 +432,7 @@ action_eject() {
         printf '\n'
         msg "Ejecting ${1} ..."
         printf '\n'
-        udisks --eject ${1}
+        eject ${1}
         # Give the device some time to eject. If we don't then sometimes
         # the ejected device will still be present when returning to the
         # main menu.
@@ -463,7 +445,7 @@ action_eject() {
 # Pipe the device information into a pager for easy viewing.
 action_info() {
     check_device "${1}" || return 1
-    udisks --show-info "${1}" | less
+    udisksctl info --block-device "${1}" | less
 }
 # arg 1: device file
 # Mount the device if it is not already mounted, and run the post_mount hook
@@ -484,7 +466,7 @@ action_mount() {
     printf '\n'
     msg "Mounting ${1} ..."
     printf '\n'
-    udisks ${mount_options} --mount ${1}
+    udisksctl mount ${mount_options} --block-device ${1}
 
     info_mounted="$(info_mounted "${1}")"
     if (( !info_mounted )); then
@@ -514,7 +496,7 @@ action_open() {
         printf '\n'
         msg "Mounting and opening ${1} ..."
         printf '\n'
-        udisks ${mount_options} --mount ${1}
+        udisksctl mount ${mount_options} --block-device ${1}
 
         info_mounted="$(info_mounted "${1}")"
         if (( info_mounted )); then
@@ -560,7 +542,7 @@ action_unmount() {
     printf '\n'
     msg "Unmounting ${1} ..."
     printf '\n'
-    udisks --unmount ${1}
+    udisksctl unmount --block-device ${1}
 
     info_mounted="$(info_mounted "${1}")"
     if (( info_mounted )); then
@@ -569,6 +551,7 @@ action_unmount() {
         return 1
     fi
 
+    printf '\n'
     msg "${1} unmounted successfully."
 
     (( run_post_unmount )) && post_unmount ${1}
@@ -647,7 +630,7 @@ removable_devices() {
     all_media=( )
     mounted_media=( )
 
-    removable=( $(udisks --enumerate-device-files \
+    removable=( $(udisksctl dump | grep "^[[:space:]]*Device:" \
         | grep -ow ${removable_devices} | sort) )
 
     if (( fancy_sort )) && (( ${#removable[*]} > 1 )); then
@@ -666,16 +649,18 @@ removable_devices() {
         if [[ "${devname}" =~ ^/dev/mmcblk[0-9]+p*[0-9]* ]]; then
             devmajor="${devname%%p[0-9]*}"
             if [[ "${devname}" = "${devmajor}" ]]; then
-                partitions="$(udisks --enumerate-device-files \
+                partitions="$(udisksctl dump | grep "^[[:space:]]*Device:" \
                     | grep -ow -E ^${devname}p[0-9]+ -c)"
                 if (( partitions )); then
                     continue
                 fi
             fi
+        elif [[ "${devname}" =~ ^/dev/dm-[0-9]+ ]]; then
+            devmajor="${devname}"
         else
             devmajor="${devname%%[0-9]*}"
             if [[ "${devname}" = "${devmajor}" ]]; then
-                partitions="$(udisks --enumerate-device-files \
+                partitions="$(udisksctl dump | grep "^[[:space:]]*Device:" \
                     | grep -ow -E ^${devname}[0-9]+ -c)"
                 if (( partitions )); then
                     continue
@@ -684,6 +669,7 @@ removable_devices() {
         fi
 
         internal="$(info_internal "${devmajor}")"
+        [[ "${devmajor}" =~ ^/dev/dm-[0-9]+ ]] && internal=0
 
         if (( internal )) && (( !show_internal )); then
             continue
@@ -693,7 +679,7 @@ removable_devices() {
 
             # Hide blacklisted devices.
             for string in "${blacklist[@]}"; do
-                udisks --show-info "${devname}" \
+                udisksctl info --block-device "${devname}" \
                     | grep -E "${string}" >/dev/null 2>&1
                 (( $? == 0 )) && continue 2
             done
@@ -705,12 +691,6 @@ removable_devices() {
             # instead.
             if [[ -z "${info_label}" ]]; then
                 info_label="$(info_label "${devmajor}")"
-                if [[ -z "${info_label}" ]]; then
-                    info_label="$(info_model "${devmajor}")"
-                fi
-                if [[ -z "${info_label}" ]]; then
-                    info_label="$(info_vendor "${devmajor}")"
-                fi
                 if [[ -z "${info_label}" ]]; then
                     info_label="No label"
                 else
@@ -767,36 +747,25 @@ optical_devices() {
         mounted_media=( )
     fi
 
-    optical=( $(udisks --enumerate-device-files \
+    optical=( $(udisksctl dump | grep "^[[:space:]]*Device:" \
         | grep -ow ${optical_devices} | sort) )
 
     print_separator_optical
 
     for devname in ${optical[@]}; do
         local info_label=
-        local -i blank= info_has_media= info_mounted=
-
-        info_has_media="$(info_has_media "${devname}")"
-        if (( !info_has_media )); then
-            continue
-        fi
+        local -i blank= info_mounted=
 
         # Hide blacklisted devices.
         for string in "${blacklist[@]}"; do
-            udisks --show-info "${devname}" \
+            udisksctl info --block-device "${devname}" \
                 | grep -E "${string}" >/dev/null 2>&1
             (( $? == 0 )) && continue 2
         done
 
         (( ++device_number ))
-        blank="$(info_blank "${devname}")"
-        if (( blank )); then
-            info_label="Blank media"
-        else
-            info_label="$(info_label ${devname})"
-            [[ -z "${info_label}" ]] && info_label="$(info_model "${devname}")"
-            [[ -z "${info_label}" ]] && info_label="No label"
-        fi
+        info_label="$(info_label ${devname})"
+        [[ -z "${info_label}" ]] && info_label="No label"
 
         if (( device_number < 10 )); then
             menu_number=" ${device_number}"
@@ -836,15 +805,22 @@ optical_devices() {
 # Here we provide a submenu for each device, which also displays any custom
 # commands that have been set.
 submenu() {
-    local devmajor= info_label= info_model= info_mountpath= info_vendor=
-    local info_device_size= info_media= info_partition_size= info_type=
+    local devmajor= info_label= info_mountpath=
+    local info_device_size= info_partition_size= info_type=
     local -i info_mounted= is_optical=
 
     check_device "${devname}" || return 1
 
     printf '%s\n' "${devname}" | grep -ow ${optical_devices} >/dev/null 2>&1
     if (( $? != 0 )); then
-        is_optical=0; devmajor="${devname%%[0-9]*}"
+        is_optical=0
+        if [[ "${devname}" =~ ^/dev/mmcblk[0-9]+p*[0-9]* ]]; then
+            devmajor="${devname%%p[0-9]*}"
+        elif [[ "${devname}" =~ ^/dev/dm-[0-9]+ ]]; then
+            devmajor="${devname}"
+        else
+            devmajor="${devname%%[0-9]*}"
+        fi
     else
         is_optical=1; devmajor="${devname}"
     fi
@@ -859,14 +835,8 @@ submenu() {
     fi
 
     info_label="$(info_label "${devname}")"
-    info_vendor="$(info_vendor "${devmajor}")"
-    info_model="$(info_model "${devmajor}")"
     info_type="$(info_type "${devname}")"
     info_device_size="$(info_device_size "${devmajor}")"
-
-    if (( is_optical )); then
-        info_media="$(info_media ${devname})"
-    fi
 
     if (( !is_optical )) && [[ "${devname}" != "${devmajor}" ]]; then
         info_partition_size="$(info_partition_size "${devname}")"
@@ -881,12 +851,7 @@ submenu() {
     else
         printf '%s\n\n' "${RED}no${ALL_OFF}"
     fi
-    printf '%s\n' "vendor           : ${info_vendor}"
-    printf '%s\n' "model            : ${info_model}"
     printf '%s\n' "type             : ${info_type}"
-    if [[ -n "${info_media}" ]]; then
-        printf '%s\n' "media            : ${info_media}"
-    fi
     if [[ -n "${info_partition_size}" ]]; then
         printf '%s\n' "size (partition) : ${info_partition_size}"
     fi
