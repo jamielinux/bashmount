@@ -8,13 +8,13 @@ I<bashmount>
 
 =head1 DESCRIPTION
 
-bashmount is a menu-driven bash script that uses udisks to easily mount,
-unmount or eject removable devices, without dependencies on any GUI or
-desktop environment. An extensive configuration file allows custom commands
-to be run on devices.
-
-bashmount can also be used alongside any automounting solutions, such as
-graphical file managers, udev rules or Udiskie.
+bashmount is a menu-driven bash script that can use different
+backends to easily mount, unmount or eject removable devices
+without dependencies on udisks or any GUI. An extensive
+configuration file allows many aspects of the script to be
+modified and custom commands to be run on devices.
+bashmount can also be used alongside any automounting solutions,
+such as graphical file managers, udev rules or Udiskie.
 
 =head1 FILES
 
@@ -29,8 +29,9 @@ Default configuration file
 =head1 BUGS
 
 If you find any bugs, please send an email to the author, or create a new
-issue at L<https://github.com/jamielinux/bashmount/issues>.
+issue at L<https://github.com/vitamins/bashmount/issues>.
 
-=head1 AUTHOR
+=head1 AUTHORS
 
 Jamie Nguyen E<lt>j@jamielinux.comE<gt>
+Lukas B.
