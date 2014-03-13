@@ -2,7 +2,7 @@
 
 #=============================================================================#
 #        FILE: bashmount                                                      #
-#     VERSION: f_0.1.3                                                        #
+#     VERSION: f_0.1.4                                                        #
 # DESCRIPTION: bashmount is a menu-driven bash script that can use different  #
 #              backends to easily mount, unmount or eject removable devices   #
 #              without dependencies on udisks or any GUI. An extensive        #
@@ -28,7 +28,7 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 
-declare -r VERSION='f_0.1.3'
+declare -r VERSION='f_0.1.4'
 
 # CONFIGURATION
 # Make sure that user defined options will not interfere with grep.
@@ -642,7 +642,7 @@ select_action() {
 	echo
 	read -r -e -p "Command: " action
 	if [[ "$action" =~ ^[1-9] ]]; then
-		if [[ "$action" =~ ^[1-9]+$ ]]; then
+		if [[ "$action" =~ ^[1-9][0-9]*$ ]]; then
 			number="$(( action - 1 ))"
 			if (( number >= device_number )); then
 				invalid_command
@@ -652,7 +652,7 @@ select_action() {
 			while :; do
 				submenu || break
 			done
-		elif [[ "$action" =~ ^[1-9]+[eimou]$ ]]; then
+		elif [[ "$action" =~ ^[1-9][0-9]*[eimou]$ ]]; then
 			number="$(( ${action%?} - 1 ))"
 			letter="${action: -1}"
 			if (( number >= device_number )); then
