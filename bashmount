@@ -2,7 +2,7 @@
 
 #=============================================================================#
 #        FILE: bashmount                                                      #
-#     VERSION: f_0.1.1                                                        #
+#     VERSION: f_0.1.2                                                        #
 # DESCRIPTION: bashmount is a menu-driven bash script that can use different  #
 #              backends to easily mount, unmount or eject removable devices   #
 #              without dependencies on udisks or any GUI. An extensive        #
@@ -28,7 +28,7 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 
-declare -r VERSION='f_0.1.1'
+declare -r VERSION='f_0.1.2'
 
 # CONFIGURATION
 # Make sure that user defined options will not interfere with grep.
@@ -152,7 +152,7 @@ print_submenu_commands() {
 	else
 		echo -n "   ${BLUE}m${ALL_OFF}: mount"
 	fi
-	echo -n "   ${BLUE}o${ALL_OFF}: open"
+	echo "   ${BLUE}o${ALL_OFF}: open"
 	echo
 	echo -n "${BLUE}b${ALL_OFF}: back   ${BLUE}r${ALL_OFF}: refresh"
 	echo "   ${BLUE}q${ALL_OFF}: quit   ${BLUE}?${ALL_OFF}: help"
@@ -247,14 +247,18 @@ print_help() {
 	echo -n "${BOLD}To mount the first device, enter ${ALL_OFF}"
 	echo -n "${BLUE}1m${ALL_OFF}"
 	echo "${BOLD}.${ALL_OFF}"
+	echo
 	echo -n "${GREEN}==>${ALL_OFF} "
 	echo "${BOLD}To open the mountpath directory of the first${ALL_OFF}"
+	echo
 	echo -n "${BOLD}    device (mounting if required), enter "
 	echo -n "${BLUE}1o${ALL_OFF}"
 	echo "${BOLD}.${ALL_OFF}"
+	echo
 	echo -n "${GREEN}==>${ALL_OFF} "
 	echo -n "${BOLD}To view a device sub-menu, "
 	echo "just enter the number.${ALL_OFF}"
+	echo
 	echo -n "${GREEN}==>${ALL_OFF} "
 	echo -n "${BLUE}a${ALL_OFF}"
 	echo -n "${BOLD}, "
@@ -264,6 +268,7 @@ print_help() {
 	echo -n "${BOLD}and "
 	echo -n "${BLUE}?${ALL_OFF} "
 	echo "${BOLD}do not require a number.${ALL_OFF}"
+	echo
 	print_separator
 	enter_to_continue
 }
@@ -271,13 +276,16 @@ print_help() {
 print_help_sub() {
 	clear_screen
 	print_submenu_commands
+	echo
 	print_separator
 	echo -n "${GREEN}==>${ALL_OFF} "
 	echo "${BOLD}To perform a command, enter a character.${ALL_OFF}"
+	echo
 	echo -n "${GREEN}==>${ALL_OFF} "
 	echo -n "${BOLD}For example, to mount this device, enter ${ALL_OFF}"
 	echo -n "${BLUE}m${ALL_OFF}"
 	echo "${BOLD}.${ALL_OFF}"
+	echo
 	print_separator
 	enter_to_continue
 }
@@ -456,7 +464,7 @@ list_devices() {
 			fi
 			listed[device_number]="$devname"
 			(( device_number++ ))
-			echo -n "${BLUE}${device_number})${ALL_OFF}"
+			echo -n " ${BLUE}${device_number})${ALL_OFF}"
 			(( show_device_path )) && echo -n " ${devname:5}:"
 			echo -n " ${info_label}"
 			if info_mounted "$devname"; then
@@ -480,7 +488,7 @@ list_devices() {
 			fi
 			listed[device_number]="$devname"
 			(( device_number++ ))
-			echo -n "${BLUE}${device_number})${ALL_OFF}"
+			echo -n " ${BLUE}${device_number})${ALL_OFF}"
 			(( show_device_path )) && echo -n " ${devname:5}:"
 			echo -n " ${info_label}"
 			if info_mounted "$devname"; then
@@ -504,7 +512,7 @@ list_devices() {
 			fi
 			listed[device_number]="$devname"
 			(( device_number++ ))
-			echo -n "${BLUE}${device_number})${ALL_OFF}"
+			echo -n " ${BLUE}${device_number})${ALL_OFF}"
 			(( show_device_path )) && echo -n " ${devname:5}:"
 			echo -n " ${info_label}"
 			if info_mounted "$devname"; then
