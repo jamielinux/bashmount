@@ -2,7 +2,7 @@
 
 #=============================================================================#
 #        FILE: bashmount                                                      #
-#     VERSION: f_0.1                                                          #
+#     VERSION: f_0.1.1                                                        #
 # DESCRIPTION: bashmount is a menu-driven bash script that can use different  #
 #              backends to easily mount, unmount or eject removable devices   #
 #              without dependencies on udisks or any GUI. An extensive        #
@@ -28,7 +28,7 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 
-declare -r VERSION='f_0.1'
+declare -r VERSION='f_0.1.1'
 
 # CONFIGURATION
 # Make sure that user defined options will not interfere with grep.
@@ -495,7 +495,13 @@ list_devices() {
 		echo
 		print_separator_optical
 		for devname in ${optical[@]}; do
-			info_label="$(lsblk -dno MODEL "$devname")"
+			info_label="$(info_fslabel "$devname")"
+			if [[ -z "$info_label" ]]; then
+				info_label="$(lsblk -dno MODEL "$devname")"
+				if [[ -z "$info_label" ]]; then
+					info_label='No label'
+				fi
+			fi
 			listed[device_number]="$devname"
 			(( device_number++ ))
 			echo -n "${BLUE}${device_number})${ALL_OFF}"
