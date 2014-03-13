@@ -2,7 +2,7 @@
 
 #=============================================================================#
 #        FILE: bashmount                                                      #
-#     VERSION: f_0.1.4                                                        #
+#     VERSION: f_0.1.5                                                        #
 # DESCRIPTION: bashmount is a menu-driven bash script that can use different  #
 #              backends to easily mount, unmount or eject removable devices   #
 #              without dependencies on udisks or any GUI. An extensive        #
@@ -28,7 +28,7 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 
-declare -r VERSION='f_0.1.4'
+declare -r VERSION='f_0.1.5'
 
 # CONFIGURATION
 # Make sure that user defined options will not interfere with grep.
@@ -55,7 +55,7 @@ declare -a blacklist=()
 mount_command() {
 	read -r -e -p 'Choose the mountpoint directory: ' dir
 	while [[ ! -d "$dir" ]] || findmnt "$dir" >/dev/null 2>&1; do
-		echo '(No such directory, or mountpoint is already in use.)'
+		printf '%s\n' '(No such directory, or mountpoint is already in use.)'
 		read -r -e -p 'Choose the mountpoint directory: ' dir
 	done
 	mount ${mount_options} "$1" "$dir"
@@ -95,7 +95,7 @@ fi
 
 if [[ -f "$CONFIGFILE" ]]; then
 	if ! . "$CONFIGFILE"; then
-		echo 'bashmount: Failed to source configuration file.'
+		printf '%s\n' 'bashmount: Failed to source configuration file.'
 		exit 78
 	fi
 fi
@@ -121,154 +121,141 @@ if (( colourize )); then
 fi
 
 msg() {
-	echo "${GREEN}==>${ALL_OFF}${BOLD} ${@}${ALL_OFF}" >&2
+	printf '%s\n' "${GREEN}==>${ALL_OFF}${BOLD} ${@}${ALL_OFF}" >&2
 }
 
 error() {
-	echo "${RED}==>${ALL_OFF}${BOLD} ERROR: ${@}${ALL_OFF}"
+	printf '%s\n' "${RED}==>${ALL_OFF}${BOLD} ERROR: ${@}${ALL_OFF}" >&2
 }
 
 clear_screen() {
 	clear
-	echo "bashmount ${VERSION}"
-	echo
+	printf '%s\n\n' "bashmount ${VERSION}"
 }
 
 print_commands() {
 	print_separator_commands
-	echo -n "${BLUE}e${ALL_OFF}: eject   ${BLUE}i${ALL_OFF}: info   ${BLUE}m${ALL_OFF}: mount"
-	echo "   ${BLUE}o${ALL_OFF}: open   ${BLUE}u${ALL_OFF}: unmount"
-	echo
-	echo -n "${BLUE}a${ALL_OFF}: unmount all   ${BLUE}r${ALL_OFF}: refresh"
-	echo "   ${BLUE}q${ALL_OFF}: quit   ${BLUE}?${ALL_OFF}: help"
-	echo
+	printf '%s' "${BLUE}e${ALL_OFF}: eject   ${BLUE}i${ALL_OFF}: info"
+	printf '%s' "   ${BLUE}m${ALL_OFF}: mount   ${BLUE}o${ALL_OFF}: open"
+	printf '%s\n\n' "   ${BLUE}u${ALL_OFF}: unmount"
+	printf '%s' "${BLUE}a${ALL_OFF}: unmount all"
+	printf '%s' "   ${BLUE}r${ALL_OFF}: refresh"
+	printf '%s\n\n' "   ${BLUE}q${ALL_OFF}: quit   ${BLUE}?${ALL_OFF}: help"
 }
 
 print_submenu_commands() {
 	print_separator_commands
-	echo -n "${BLUE}e${ALL_OFF}: eject   ${BLUE}i${ALL_OFF}: info"
+	printf '%s' "${BLUE}e${ALL_OFF}: eject   ${BLUE}i${ALL_OFF}: info"
 	if info_mounted "$devname"; then
-		echo -n "   ${BLUE}u${ALL_OFF}: unmount"
+		printf '%s' "   ${BLUE}u${ALL_OFF}: unmount"
 	else
-		echo -n "   ${BLUE}m${ALL_OFF}: mount"
+		printf '%s' "   ${BLUE}m${ALL_OFF}: mount"
 	fi
-	echo "   ${BLUE}o${ALL_OFF}: open"
-	echo
-	echo -n "${BLUE}b${ALL_OFF}: back   ${BLUE}r${ALL_OFF}: refresh"
-	echo "   ${BLUE}q${ALL_OFF}: quit   ${BLUE}?${ALL_OFF}: help"
+	printf '%s\n\n' "   ${BLUE}o${ALL_OFF}: open"
+	printf '%s' "${BLUE}b${ALL_OFF}: back   ${BLUE}r${ALL_OFF}: refresh"
+	printf '%s\n' "   ${BLUE}q${ALL_OFF}: quit   ${BLUE}?${ALL_OFF}: help"
 
 	if (( custom1_show )) || (( custom2_show )) || (( custom3_show )); then
-		echo
+		printf '\n'
 	fi
 
 	if (( custom1_show )) && [[ -n "$custom1_desc" ]]; then
-		echo -n "${BLUE}1${ALL_OFF}: ${custom1_desc}"
+		printf '%s' "${BLUE}1${ALL_OFF}: ${custom1_desc}"
 	fi
 
 	if (( custom2_show )) && [[ -n "$custom2_desc" ]]; then
-		echo -n "   ${BLUE}2${ALL_OFF}: ${custom2_desc}"
+		printf '%s' "   ${BLUE}2${ALL_OFF}: ${custom2_desc}"
 	fi
 
 	if (( custom3_show )) && [[ -n "$custom3_desc" ]]; then
-		echo -n "   ${BLUE}3${ALL_OFF}: ${custom3_desc}"
+		printf '%s' "   ${BLUE}3${ALL_OFF}: ${custom3_desc}"
 	fi
 
 	if (( custom1_show )) || (( custom2_show )) || (( custom3_show )); then
-		echo
+		printf '\n'
 	fi
 
 	if (( custom4_show )) || (( custom5_show )) || (( custom6_show )); then
-		echo
+		printf '\n'
 	fi
 
 	if (( custom4_show )) && [[ -n "$custom4_desc" ]]; then
-		echo -n "${BLUE}4${ALL_OFF}: ${custom4_desc}"
+		printf '%s' "${BLUE}4${ALL_OFF}: ${custom4_desc}"
 	fi
 
 	if (( custom5_show )) && [[ -n "$custom5_desc" ]]; then
-		echo -n "   ${BLUE}5${ALL_OFF}: ${custom5_desc}"
+		printf '%s' "   ${BLUE}5${ALL_OFF}: ${custom5_desc}"
 	fi
 
 	if (( custom6_show )) && [[ -n "$custom6_desc" ]]; then
-		echo -n "   ${BLUE}6${ALL_OFF}: ${custom6_desc}"
-    fi
+		printf '%s' "   ${BLUE}6${ALL_OFF}: ${custom6_desc}"
+	fi
 
 	if (( custom4_show )) || (( custom5_show )) || (( custom6_show )); then
-		echo
+		printf '\n'
 	fi
 }
 
 enter_to_continue() {
-	echo
+	printf '\n'
 	read -r -e -p "Press [${BLUE}enter${ALL_OFF}] to continue: " null
 }
 
 invalid_command() {
-	echo
+	printf '\n'
 	error 'Invalid command. See the help menu.'
 	enter_to_continue
 }
 
 print_separator() {
-	echo '====================================================='
-	echo
+	printf '%s\n\n' '====================================================='
 }
 
 print_separator_commands() {
-	echo '===================== COMMANDS ======================'
-	echo
+	printf '%s\n\n' '===================== COMMANDS ======================'
 }
 
 print_separator_device() {
-	echo '==================== DEVICE MENU ===================='
-	echo
+	printf '%s\n\n' '==================== DEVICE MENU ===================='
 }
 
 print_separator_optical() {
-	echo '=================== OPTICAL MEDIA ==================='
-	echo
+	printf '%s\n\n' '=================== OPTICAL MEDIA ==================='
 }
 
 print_separator_removable() {
-	echo '================== REMOVABLE MEDIA =================='
-	echo
+	printf '%s\n\n' '================== REMOVABLE MEDIA =================='
 }
 
 print_separator_internal() {
-	echo '================== INTERNAL MEDIA ==================='
-	echo
+	printf '%s\n\n' '================== INTERNAL MEDIA ==================='
 }
 
 print_help() {
 	clear_screen
 	print_commands
 	print_separator
-	echo -n "${GREEN}==>${ALL_OFF} "
-	echo -n "${BOLD}To mount the first device, enter ${ALL_OFF}"
-	echo -n "${BLUE}1m${ALL_OFF}"
-	echo "${BOLD}.${ALL_OFF}"
-	echo
-	echo -n "${GREEN}==>${ALL_OFF} "
-	echo "${BOLD}To open the mountpath directory of the first${ALL_OFF}"
-	echo
-	echo -n "${BOLD}    device (mounting if required), enter "
-	echo -n "${BLUE}1o${ALL_OFF}"
-	echo "${BOLD}.${ALL_OFF}"
-	echo
-	echo -n "${GREEN}==>${ALL_OFF} "
-	echo -n "${BOLD}To view a device sub-menu, "
-	echo "just enter the number.${ALL_OFF}"
-	echo
-	echo -n "${GREEN}==>${ALL_OFF} "
-	echo -n "${BLUE}a${ALL_OFF}"
-	echo -n "${BOLD}, "
-	echo -n "${BLUE}r${ALL_OFF}"
-	echo -n "${BOLD}, "
-	echo -n "${BLUE}q${ALL_OFF} "
-	echo -n "${BOLD}and "
-	echo -n "${BLUE}?${ALL_OFF} "
-	echo "${BOLD}do not require a number.${ALL_OFF}"
-	echo
+	printf '%s' "${GREEN}==>${ALL_OFF} "
+	printf '%s' "${BOLD}To mount the first device, enter ${ALL_OFF}"
+	printf '%s' "${BLUE}1m${ALL_OFF}"
+	printf '%s\n\n' "${BOLD}.${ALL_OFF}"
+	printf '%s' "${GREEN}==>${ALL_OFF} "
+	printf '%s\n\n' "${BOLD}To open the mountpath directory of the first${ALL_OFF}"
+	printf '%s' "${BOLD}    device (mounting if required), enter "
+	printf '%s' "${BLUE}1o${ALL_OFF}"
+	printf '%s\n\n' "${BOLD}.${ALL_OFF}"
+	printf '%s' "${GREEN}==>${ALL_OFF} "
+	printf '%s' "${BOLD}To view a device sub-menu, "
+	printf '%s\n\n' "just enter the number.${ALL_OFF}"
+	printf '%s' "${GREEN}==>${ALL_OFF} "
+	printf '%s' "${BLUE}a${ALL_OFF}"
+	printf '%s' "${BOLD}, "
+	printf '%s' "${BLUE}r${ALL_OFF}"
+	printf '%s' "${BOLD}, "
+	printf '%s' "${BLUE}q${ALL_OFF} "
+	printf '%s' "${BOLD}and "
+	printf '%s' "${BLUE}?${ALL_OFF} "
+	printf '%s\n\n' "${BOLD}do not require a number.${ALL_OFF}"
 	print_separator
 	enter_to_continue
 }
@@ -276,16 +263,14 @@ print_help() {
 print_help_sub() {
 	clear_screen
 	print_submenu_commands
-	echo
+	printf '\n'
 	print_separator
-	echo -n "${GREEN}==>${ALL_OFF} "
-	echo "${BOLD}To perform a command, enter a character.${ALL_OFF}"
-	echo
-	echo -n "${GREEN}==>${ALL_OFF} "
-	echo -n "${BOLD}For example, to mount this device, enter ${ALL_OFF}"
-	echo -n "${BLUE}m${ALL_OFF}"
-	echo "${BOLD}.${ALL_OFF}"
-	echo
+	printf '%s' "${GREEN}==>${ALL_OFF} "
+	printf '%s\n\n' "${BOLD}To perform a command, enter a character.${ALL_OFF}"
+	printf '%s' "${GREEN}==>${ALL_OFF} "
+	printf '%s' "${BOLD}For example, to mount this device, enter ${ALL_OFF}"
+	printf '%s' "${BLUE}m${ALL_OFF}"
+	printf '%s\n\n' "${BOLD}.${ALL_OFF}"
 	print_separator
 	enter_to_continue
 }
@@ -334,7 +319,7 @@ info_size() {
 # DEVICE MANIPULATION
 check_device() {
 	if [[ ! -b "$1" ]]; then
-		echo
+		printf '\n'
 		error "${1} is no longer available."
 		enter_to_continue
 		return 1
@@ -346,9 +331,9 @@ action_eject() {
 	check_device "$1" || return 1
 	info_mounted "$1" && action_unmount "$1"
 	if ! info_mounted "$1"; then
-		echo
+		printf '\n'
 		msg "Ejecting ${1} ..."
-		echo
+		printf '\n'
 		eject "$1"
 		# Give the device some time to eject. If we don't then sometimes the ejected
 		# device will still be present when returning to the main menu.
@@ -364,7 +349,7 @@ action_info() {
 
 action_mount() {
 	check_device "$1" || return 1
-	echo
+	printf '\n'
 	if info_mounted "$1"; then
 		error "${1} is already mounted."
 	else
@@ -373,7 +358,7 @@ action_mount() {
 			msg "${1} mounted succesfullly."
 			(( run_post_mount )) && post_mount "$1"
 		else
-			echo
+			printf '\n'
 			error "${1} could not be mounted."
 		fi
 	fi
@@ -382,35 +367,35 @@ action_mount() {
 
 action_open() {
 	if ! info_mounted "$1"; then
-		echo
+		printf '\n'
 		msg "Mounting ${1} ..."
 		if mount_command "$1"; then
 			msg "${1} mounted succesfullly."
 			(( run_post_mount )) && post_mount "$1"
 		else
-			echo
+			printf '\n'
 			error "${1} could not be mounted."
 			enter_to_continue
 			return 1
 		fi
 	fi
-	echo
+	printf '\n'
 	msg "Opening ${1} ..."
-	echo
+	printf '\n'
 	filemanager "$(info_mountpath "$1")"
 	enter_to_continue
 }
 
 action_unmount() {
-	echo
+	printf '\n'
 	if info_mounted "$1"; then
 		msg "Unmounting ${1} ..."
-		echo
+		printf '\n'
 		if unmount_command "$1"; then
 			msg "${1} unmounted successfully."
 			(( run_post_unmount )) && post_unmount "$1"
 		else
-			echo
+			printf '\n'
 			error "${1} could not be unmounted."
 		fi
 	else
@@ -464,19 +449,19 @@ list_devices() {
 			fi
 			listed[device_number]="$devname"
 			(( device_number++ ))
-			echo -n " ${BLUE}${device_number})${ALL_OFF}"
-			(( show_device_path )) && echo -n " ${devname:5}:"
-			echo -n " ${info_label}"
+			printf '%s' " ${BLUE}${device_number})${ALL_OFF}"
+			(( show_device_path )) && printf '%s' " ${devname:5}:"
+			printf '%s' " ${info_label}"
 			if info_mounted "$devname"; then
-				echo -n " ${GREEN}[mounted]${ALL_OFF}"
+				printf '%s' " ${GREEN}[mounted]${ALL_OFF}"
 				mounted[${#mounted[*]}]="$devname"
 			fi
-			echo
+			printf '\n'
 		done
 	fi
 	# List removable media.
 	if (( show_removable )) && (( ${#removable[*]} )); then
-		echo
+		printf '\n'
 		print_separator_removable
 		for devname in ${removable[@]}; do
 			info_label="$(info_fslabel "$devname")"
@@ -488,19 +473,19 @@ list_devices() {
 			fi
 			listed[device_number]="$devname"
 			(( device_number++ ))
-			echo -n " ${BLUE}${device_number})${ALL_OFF}"
-			(( show_device_path )) && echo -n " ${devname:5}:"
-			echo -n " ${info_label}"
+			printf '%s' " ${BLUE}${device_number})${ALL_OFF}"
+			(( show_device_path )) && printf '%s' " ${devname:5}:"
+			printf '%s' " ${info_label}"
 			if info_mounted "$devname"; then
-				echo -n " ${GREEN}[mounted]${ALL_OFF}"
+				printf '%s' " ${GREEN}[mounted]${ALL_OFF}"
 				mounted[${#mounted[*]}]="$devname"
 			fi
-			echo
+			printf '\n'
 		done
 	fi
 	# List optical media.
 	if (( show_optical )) && (( ${#optical[*]} )); then
-		echo
+		printf '\n'
 		print_separator_optical
 		for devname in ${optical[@]}; do
 			info_label="$(info_fslabel "$devname")"
@@ -512,18 +497,18 @@ list_devices() {
 			fi
 			listed[device_number]="$devname"
 			(( device_number++ ))
-			echo -n " ${BLUE}${device_number})${ALL_OFF}"
-			(( show_device_path )) && echo -n " ${devname:5}:"
-			echo -n " ${info_label}"
+			printf '%s' " ${BLUE}${device_number})${ALL_OFF}"
+			(( show_device_path )) && printf '%s' " ${devname:5}:"
+			printf '%s' " ${info_label}"
 			if info_mounted "$devname"; then
-				echo -n " ${GREEN}[mounted]${ALL_OFF}"
+				printf '%s' " ${GREEN}[mounted]${ALL_OFF}"
 				mounted[${#mounted[*]}]="$devname"
 			fi
-			echo
+			printf '\n'
 		done
 	fi
-	(( device_number )) || echo 'No devices.'
-	echo
+	(( device_number )) || printf '%s\n' 'No devices.'
+	printf '\n'
 }
 
 submenu() {
@@ -540,24 +525,24 @@ submenu() {
 	info_size="$(info_size "$devname")"
 	clear_screen
 	print_separator_device
-	echo "device    : ${devname}"
-	echo "label     : ${info_label}"
-	echo -n 'mounted   : '
+	printf '%s\n' "device    : ${devname}"
+	printf '%s\n' "label     : ${info_label}"
+	printf '%s' 'mounted   : '
 	if info_mounted "$devname"; then
-		echo "${GREEN}yes${ALL_OFF}"
-		echo "mountpath : $(info_mountpath "$devname")"
+		printf '%s\n' "${GREEN}yes${ALL_OFF}"
+		printf '%s\n' "mountpath : $(info_mountpath "$devname")"
 	else
-		echo "${RED}no${ALL_OFF}"
+		printf '%s\n' "${RED}no${ALL_OFF}"
 	fi
-	echo "fstype    : ${info_fstype}"
-	echo "size      : ${info_size}"
+	printf '%s\n' "fstype    : ${info_fstype}"
+	printf '%s\n' "size      : ${info_size}"
 	if (( show_commands )); then
-		echo
+		printf '\n'
 		print_submenu_commands
 	fi
-	echo
+	printf '\n'
 	print_separator
-	echo
+	printf '\n'
 	read -r -e -p 'Command: ' action
 	case "$action" in
 		'e')	action_eject "$devname";;
@@ -571,9 +556,9 @@ submenu() {
 		'?')	print_help_sub
 			return 0;;
 		'1')	if (( custom1_show )); then
-				echo
+				printf '\n'
 				msg "Running custom command ${custom1_desc} ..."
-				echo
+				printf '\n'
 				custom1_command "$devname"
 				enter_to_continue
 			else
@@ -581,9 +566,9 @@ submenu() {
 			fi
 			return 0;;
 		'2')	if (( custom2_show )); then
-				echo
+				printf '\n'
 				msg "Running custom command ${custom2_desc} ..."
-				echo
+				printf '\n'
 				custom2_command "$devname"
 				enter_to_continue
 			else
@@ -591,9 +576,9 @@ submenu() {
 			fi
 			return 0;;
 		'3')	if (( custom3_show )); then
-				echo
+				printf '\n'
 				msg "Running custom command ${custom3_desc} ..."
-				echo
+				printf '\n'
 				custom3_command "$devname"
 				enter_to_continue
 			else
@@ -601,9 +586,9 @@ submenu() {
 			fi
 			return 0;;
 		'4')	if (( custom4_show )); then
-				echo
+				printf '\n'
 				msg "Running custom command ${custom4_desc} ..."
-				echo
+				printf '\n'
 				custom4_command "$devname"
 				enter_to_continue
 			else
@@ -611,9 +596,9 @@ submenu() {
 			fi
 			return 0;;
 		'5')	if (( custom5_show )); then
-				echo
+				printf '\n'
 				msg "Running custom command ${custom5_desc} ..."
-				echo
+				printf '\n'
 				custom5_command "$devname"
 				enter_to_continue
 			else
@@ -621,9 +606,9 @@ submenu() {
 			fi
 			return 0;;
 		'6')	if (( custom6_show )); then
-				echo
+				printf '\n'
 				msg "Running custom command ${custom6_desc} ..."
-				echo
+				printf '\n'
 				custom6_command "$devname"
 				enter_to_continue
 			else
@@ -639,7 +624,7 @@ select_action() {
 	local devname= letter=
 	local -i number=
 	print_separator
-	echo
+	printf '\n'
 	read -r -e -p "Command: " action
 	if [[ "$action" =~ ^[1-9] ]]; then
 		if [[ "$action" =~ ^[1-9][0-9]*$ ]]; then
@@ -675,7 +660,7 @@ select_action() {
 		fi
 	else
 		case "$action" in
-			'a')	echo
+			'a')	printf '\n'
 				if (( ! ${#mounted[*]} )); then
 					error 'No devices mounted.'
 					enter_to_continue

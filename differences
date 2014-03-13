@@ -21,7 +21,6 @@ Differences between the rewrite of bashmount and the original version:
 * Information retrieval does not make use of piping into grep.
 * "awk" and "sort" are no longer used.
 * The disk size in byte is not converted, as the human readable format is printed by lsblk. 
-* "echo" is used instead of "printf"
 * Mounting devices is done in the function "mount_command", which can be configured by the user.
   Again, the use of udisks for mounting is optional.
 * The device blacklist is matched against the output of "lsblk -P", which prints key-value-pairs.
