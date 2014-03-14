@@ -2,7 +2,7 @@
 
 #=============================================================================#
 #        FILE: bashmount                                                      #
-#     VERSION: f_0.1.5                                                        #
+#     VERSION: 2.0.1                                                          #
 # DESCRIPTION: bashmount is a menu-driven bash script that can use different  #
 #              backends to easily mount, unmount or eject removable devices   #
 #              without dependencies on udisks or any GUI. An extensive        #
@@ -28,7 +28,7 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 
-declare -r VERSION='f_0.1.5'
+declare -r VERSION='2.0.1'
 
 # CONFIGURATION
 # Make sure that user defined options will not interfere with grep.

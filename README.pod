@@ -29,7 +29,7 @@ Default configuration file
 =head1 BUGS
 
 If you find any bugs, please send an email to the author, or create a new
-issue at L<https://github.com/vitamins/bashmount/issues>.
+issue at L<https://github.com/jamielinux/bashmount/issues>.
 
 =head1 AUTHORS
 
