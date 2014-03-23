@@ -36,6 +36,7 @@ declare -r VERSION='3.0.0alpha1'
 unset GREP_OPTIONS
 
 # Set defaults.
+declare udisks="auto"
 declare mount_options='--options nosuid,noexec,relatime'
 declare -i show_internal=1
 declare -i show_removable=1
@@ -54,16 +55,24 @@ declare -i run_post_unmount=0
 declare -a blacklist=()
 
 mount_command() {
-    read -r -e -p 'Choose the mountpoint directory: ' dir
-    while [[ ! -d "${dir}" ]] || findmnt "${dir}" >/dev/null 2>&1; do
-        printf '%s\n' '(No such directory, or mountpoint is already in use.)'
+    if (( udisks == 0 )); then
         read -r -e -p 'Choose the mountpoint directory: ' dir
-    done
-    mount ${mount_options} "${1}" "${dir}"
+        while [[ ! -d "${dir}" ]] || findmnt "${dir}" >/dev/null 2>&1; do
+            error "No such directory, or mountpoint is already in use."
+            read -r -e -p 'Choose the mountpoint directory: ' dir
+        done
+        mount ${mount_options} "${1}" "${dir}"
+    else
+        udisksctl mount ${mount_options} --block-device "${1}"
+    fi
 }
 
 unmount_command() {
-    umount "${1}"
+    if (( udisks == 0 )); then
+        umount "${1}"
+    else
+        udisksctl unmount --block-device "${1}"
+    fi
 }
 
 filemanager() {
@@ -98,6 +107,15 @@ if [[ -f "${CONFIGFILE}" ]]; then
     if ! . "${CONFIGFILE}"; then
         printf '%s\n' 'bashmount: Failed to source configuration file.'
         exit 78
+    fi
+fi
+
+if [[ "${udisks}" == "auto" ]]; then
+    type -p udisksctl >/dev/null 2>&1
+    if (( $? != 0 )); then
+        udisks=0
+    else
+        udisks=1
     fi
 fi
 
