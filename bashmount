@@ -485,11 +485,12 @@ list_devices() {
                 printf '%s' " ${GREEN}[mounted]${ALL_OFF}"
                 mounted[${#mounted[*]}]="${devname}"
             fi
-            printf '\n\n'
+            printf '\n'
         done
     fi
     # List removable media.
     if (( show_removable )) && (( ${#removable[*]} )); then
+        printf '\n'
         print_separator_removable
         for devname in ${removable[@]}; do
             info_label="$(info_fslabel "${devname}")"
