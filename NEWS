@@ -1,3 +1,8 @@
+bashmount 3.0.2 (2014-03-23)
+  Thanks to Lukas B. (aka https://github.com/vitamins) for these changes:
+  - Fix newline in UI (again)
+  - Use new syntax for cryptsetup
+
 bashmount 3.0.1 (2014-03-23)
   - Default to 'noatime' instead of 'relatime' in the default mount options
 
