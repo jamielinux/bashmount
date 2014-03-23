@@ -39,8 +39,8 @@ declare -r VERSION='3.0.0beta1'
 unset GREP_OPTIONS
 
 # Set defaults.
-declare udisks="auto"
-declare mount_options='--options nosuid,noexec,relatime'
+declare udisks='auto'
+declare default_mount_options='--options nosuid,noexec,relatime'
 declare -i show_internal=1
 declare -i show_removable=1
 declare -i show_optical=1
@@ -54,10 +54,6 @@ declare -i run_post_unmount=0
 declare -a blacklist=()
 
 mount_command() {
-    if [[ "${1}" == "--read-only" ]]; then
-        mount_options="${mount_options} --read-only"
-        shift 1
-    fi
     if (( udisks == 0 )); then
         read -r -e -p 'Choose the mountpoint directory: ' dir
         while [[ ! -d "${dir}" ]] || findmnt "${dir}" >/dev/null 2>&1; do
@@ -126,6 +122,8 @@ if ! type -p lsblk >/dev/null 2>&1; then
     printf '%s\n' "bashmount: 'lsblk': command not found"
     exit 69
 fi
+
+declare mount_options="$default_mount_options"
 # }}}
 
 #-------------------------------------#
@@ -591,7 +589,9 @@ submenu() {
             printf '\n'
             msg "Mounting read-only ..."
             printf '\n'
-            mount_command --read-only "${devname}"
+            mount_options="${default_mount_options}"' --read-only'
+            mount_command "${devname}"
+            mount_options="${default_mount_options}"
             enter_to_continue
             return 0;;
         '2')
