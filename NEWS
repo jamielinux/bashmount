@@ -1,3 +1,10 @@
+bashmount 3.0.1 (2014-03-23)
+  - Default to 'noatime' instead of 'relatime' in the default mount options
+
+  Thanks to Lukas B. (aka https://github.com/vitamins) for these changes:
+  - When udisks=1 and udisksctl is not available, fail with a message
+  - Fix handling of read-only mounting
+
 bashmount 3.0.0 (2014-03-23)
   - Allow pressing [enter] to refresh device list
 
