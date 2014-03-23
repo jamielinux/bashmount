@@ -43,7 +43,6 @@ declare -i show_removable=1
 declare -i show_optical=1
 declare -i show_commands=1
 declare -i colourize=1
-declare -i show_device_path=1
 declare -i custom4_show=0
 declare -i custom5_show=0
 declare -i custom6_show=0
@@ -457,7 +456,7 @@ list_devices() {
             listed[device_number]="${devname}"
             (( device_number++ ))
             printf '%s' " ${BLUE}${device_number})${ALL_OFF}"
-            (( show_device_path )) && printf '%s' " ${devname:5}:"
+            printf '%s' " ${devname:5}:"
             printf '%s' " ${info_label}"
             if info_mounted "${devname}"; then
                 printf '%s' " ${GREEN}[mounted]${ALL_OFF}"
@@ -481,7 +480,7 @@ list_devices() {
             listed[device_number]="${devname}"
             (( device_number++ ))
             printf '%s' " ${BLUE}${device_number})${ALL_OFF}"
-            (( show_device_path )) && printf '%s' " ${devname:5}:"
+            printf '%s' " ${devname:5}:"
             printf '%s' " ${info_label}"
             if info_mounted "${devname}"; then
                 printf '%s' " ${GREEN}[mounted]${ALL_OFF}"
@@ -505,7 +504,7 @@ list_devices() {
             listed[device_number]="${devname}"
             (( device_number++ ))
             printf '%s' " ${BLUE}${device_number})${ALL_OFF}"
-            (( show_device_path )) && printf '%s' " ${devname:5}:"
+            printf '%s' " ${devname:5}:"
             printf '%s' " ${info_label}"
             if info_mounted "${devname}"; then
                 printf '%s' " ${GREEN}[mounted]${ALL_OFF}"
