@@ -31,7 +31,10 @@
 
 declare -r VERSION='3.0.0alpha1'
 
-# CONFIGURATION
+#-------------------------------------#
+#           CONFIGURATION             #
+#-------------------------------------#
+# {{{
 # Make sure that user defined options will not interfere with grep.
 unset GREP_OPTIONS
 
@@ -118,9 +121,12 @@ if [[ "${udisks}" == "auto" ]]; then
         udisks=1
     fi
 fi
+# }}}
 
-# GENERAL FUNCTIONS
-
+#-------------------------------------#
+#         GENERAL FUNCTIONS           #
+#-------------------------------------#
+# {{{
 unset ALL_OFF BOLD BLUE GREEN RED
 if (( colourize )); then
     if tput setaf 0 >/dev/null 2>&1; then
@@ -279,8 +285,12 @@ print_help_sub() {
     print_separator
     enter_to_continue
 }
+# }}}
 
-# INFORMATION RETRIEVAL
+#-------------------------------------#
+#       INFORMATION RETRIEVAL         #
+#-------------------------------------#
+# {{{
 # Returns 0 if the device is registered as removable device in the kernel,
 # otherwise it returns 1.
 info_removable() {
@@ -321,8 +331,12 @@ info_fstype() {
 info_size() {
     lsblk -drno SIZE "${1}"
 }
+# }}}
 
-# DEVICE MANIPULATION
+#-------------------------------------#
+#        DEVICE MANIPULATION          #
+#-------------------------------------#
+# {{{
 check_device() {
     if [[ ! -b "${1}" ]]; then
         printf '\n'
@@ -409,7 +423,12 @@ action_unmount() {
     fi
     enter_to_continue
 }
+# }}}
 
+#-------------------------------------#
+#           MENU FUNCTIONS            #
+#-------------------------------------#
+# {{{
 list_devices() {
     local -a all=() removable=() internal=() optical=()
     # The array "all" contains the sorted list of devices returned by lsblk.
@@ -560,66 +579,73 @@ submenu() {
         'b') return 1;;
         'r') return 0;;
         'q') exit;;
-        '?') print_help_sub
-             return 0;;
-        '1') printf '\n'
-             msg "Mounting read-only ..."
-             printf '\n'
-             mount_command --read-only "${devname}"
-             enter_to_continue
-             return 0;;
-        '2') printf '\n'
-             msg "Opening luks volume ..."
-             printf '\n'
-             if (( udisks == 0 )); then
-                 cryptsetup luksOpen -v "${devname}" "luks-${devname##*/}"
-             else
-                 udisksctl unlock --block-device "${devname}"
-             fi
-             enter_to_continue
-             return 0;;
-        '3') printf '\n'
-             msg "Closing luks volume ..."
-             printf '\n'
-             if (( udisks == 0 )); then
-                 cryptsetup luksClose "${devname}"
-             else
-                 udisksctl lock --block-device "${devname}"
-             fi
-             enter_to_continue
-             return 0;;
-        '4') if (( custom4_show )); then
+        '?')
+            print_help_sub
+            return 0;;
+        '1')
+            printf '\n'
+            msg "Mounting read-only ..."
+            printf '\n'
+            mount_command --read-only "${devname}"
+            enter_to_continue
+            return 0;;
+        '2')
+            printf '\n'
+            msg "Opening luks volume ..."
+            printf '\n'
+            if (( udisks == 0 )); then
+                cryptsetup luksOpen -v "${devname}" "luks-${devname##*/}"
+            else
+                udisksctl unlock --block-device "${devname}"
+            fi
+            enter_to_continue
+            return 0;;
+        '3')
+            printf '\n'
+            msg "Closing luks volume ..."
+            printf '\n'
+            if (( udisks == 0 )); then
+                cryptsetup luksClose "${devname}"
+            else
+                udisksctl lock --block-device "${devname}"
+            fi
+            enter_to_continue
+            return 0;;
+        '4')
+            if (( custom4_show )); then
                 printf '\n'
                 msg "Running custom command ${custom4_desc} ..."
                 printf '\n'
                 custom4_command "${devname}"
                 enter_to_continue
-             else
+            else
                 invalid_command
-             fi
-             return 0;;
-        '5') if (( custom5_show )); then
-                 printf '\n'
-                 msg "Running custom command ${custom5_desc} ..."
-                 printf '\n'
-                 custom5_command "${devname}"
-                 enter_to_continue
-             else
-                 invalid_command
-             fi
-             return 0;;
-        '6') if (( custom6_show )); then
-                 printf '\n'
-                 msg "Running custom command ${custom6_desc} ..."
-                 printf '\n'
-                 custom6_command "${devname}"
-                 enter_to_continue
-             else
-                 invalid_command
-             fi
-             return 0;;
-         *)  invalid_command
-             return 0;;
+            fi
+            return 0;;
+        '5')
+            if (( custom5_show )); then
+                printf '\n'
+                msg "Running custom command ${custom5_desc} ..."
+                printf '\n'
+                custom5_command "${devname}"
+                enter_to_continue
+            else
+                invalid_command
+            fi
+            return 0;;
+        '6')
+            if (( custom6_show )); then
+                printf '\n'
+                msg "Running custom command ${custom6_desc} ..."
+                printf '\n'
+                custom6_command "${devname}"
+                enter_to_continue
+            else
+                invalid_command
+            fi
+            return 0;;
+         *) invalid_command
+            return 0;;
     esac
 }
 
@@ -649,12 +675,12 @@ select_action() {
             fi
             devname="${listed[number]}"
             case "${letter}" in
-                'e')    action_eject "${devname}";;
-                'i')    action_info "${devname}";;
-                'm')    action_mount "${devname}";;
-                'o')    action_open "${devname}";;
-                'u')    action_unmount "${devname}";;
-                *)  return 1;;
+                'e') action_eject "${devname}";;
+                'i') action_info "${devname}";;
+                'm') action_mount "${devname}";;
+                'o') action_open "${devname}";;
+                'u') action_unmount "${devname}";;
+                 *)  return 1;;
             esac
             return 0
         else
@@ -663,7 +689,8 @@ select_action() {
         fi
     else
         case "${action}" in
-            'a')    printf '\n'
+            'a')
+                printf '\n'
                 if (( ! ${#mounted[*]} )); then
                     error 'No devices mounted.'
                     enter_to_continue
@@ -679,21 +706,26 @@ select_action() {
                 done
                 enter_to_contine
                 return 1;;
-            'r')    return 0;;
-            'q'|'b')    exit 0;;
-            '?')    print_help
+            'r')
                 return 0;;
-            *)  invalid_command
+            'q'|'b')
+                exit 0;;
+            '?')
+                print_help
+                return 0;;
+            *)
+                invalid_command
                 return 1;;
         esac
     fi
 }
+# }}}
 
 declare -i device_number=
 declare -a mounted=()
 declare -a listed=()
 
-while :; do
+while true; do
     clear_screen
     list_devices
     (( show_commands )) && print_commands
