@@ -3,6 +3,7 @@ Dependencies
 
  * bash
  * eject
+ * Optional: udisks2
 
 bashmount should work on all distributions with a recent version of lsblk.
 

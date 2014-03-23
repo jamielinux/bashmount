@@ -1,3 +1,12 @@
+bashmount 3.0.0beta1 (2014-03-23)
+  - Autodetect the presence of udisksctl, but also allow to manually disable
+    the use of udisks
+  - Re-order the configuration file and remove redundant options
+  - Allow blacklisting by TYPE
+  - The first three custom commands are now built-in to bashmount, so only
+    custom4_command, custom5_command and custom6_command are configurable
+  - Remove show_device_path option, and instead always show the device path
+
 bashmount 3.0.0alpha1 (2014-03-23)
   Many thanks to Lukas B. (aka https://github.com/vitamins) for porting
   bashmount to use lsblk where appropriate and a variety of other changes:
