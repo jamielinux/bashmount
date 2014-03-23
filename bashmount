@@ -158,7 +158,7 @@ error() {
 
 clear_screen() {
     clear
-    printf '%s\n\n' "bashmount ${VERSION}"
+    printf '%s\n' "bashmount ${VERSION}"
 }
 
 print_commands() {
@@ -467,6 +467,7 @@ list_devices() {
     # Print output.
     # List internal media.
     if (( show_internal )) && (( ${#internal[*]} )); then
+        printf '\n'
         print_separator_internal
         for devname in ${internal[@]}; do
             info_label="$(info_fslabel "${devname}")"
@@ -485,11 +486,12 @@ list_devices() {
                 printf '%s' " ${GREEN}[mounted]${ALL_OFF}"
                 mounted[${#mounted[*]}]="${devname}"
             fi
-            printf '\n\n'
+            printf '\n'
         done
     fi
     # List removable media.
     if (( show_removable )) && (( ${#removable[*]} )); then
+        printf '\n'
         print_separator_removable
         for devname in ${removable[@]}; do
             info_label="$(info_fslabel "${devname}")"
@@ -598,7 +600,7 @@ submenu() {
             msg 'Opening luks volume ...'
             printf '\n'
             if (( udisks == 0 )); then
-                cryptsetup luksOpen -v "${devname}" "luks-${devname##*/}"
+                cryptsetup open --type luks -v "${devname}" "luks-${devname##*/}"
             else
                 udisksctl unlock --block-device "${devname}"
             fi
@@ -609,7 +611,7 @@ submenu() {
             msg 'Closing luks volume ...'
             printf '\n'
             if (( udisks == 0 )); then
-                cryptsetup luksClose "${devname}"
+                cryptsetup close --type luks "${devname}"
             else
                 udisksctl lock --block-device "${devname}"
             fi
