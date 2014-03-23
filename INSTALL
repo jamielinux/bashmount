@@ -2,16 +2,9 @@ Dependencies
 ============
 
  * bash
- * udisks2/udisksctl
  * eject
 
-bashmount should work on all recent distributions that use udisks2. Older
-distributions may still be using the deprecated HAL, which is not supported
-by bashmount.
-
-If your distribution uses the old version of udisks, please download and
-use bashmount 1.6.2 instead.
-
+bashmount should work on all distributions with a recent version of lsblk.
 
 
 Installation
@@ -39,21 +32,6 @@ Installation
         gzip -9 bashmount.1
         install -m644 bashmount.1.gz /usr/share/man/man1/bashmount.1.gz
 
-6. Ignore this step if you are using a graphical login manager.
-
-   WARNING: The instructions in this step might be outdated.
-
-   If you do not use a graphical login manager, consult the documentation
-   provided by your distribution on how to run a session with consolekit.
-   The following instructions may not work in all distributions.
-
-   Place the following in "$HOME/.xinitrc":
-
-        if test -z "${DBUS_SESSION_BUS_ADDRESS}"; then
-            eval "$(dbus-launch --sh-syntax --exit-with-session)"
-        fi
-        exec ck-launch-session [window_manager]
-
-7. Make life a bit easier by setting an alias in "$HOME/.bashrc":
+6. Make life a bit easier by setting an alias in "$HOME/.bashrc":
 
         alias bm='bashmount'

@@ -1,0 +1,37 @@
+Differences between the rewrite of bashmount and the original version:
+
+1.	Configuration
+
+1.1	Variables
+
+* "optical_devices" and "removable_devices" are no longer present.
+* "show_internal" is set to '1' by default.
+* "show_removable_device_filename" and "show_optical_device_filename" have been replaced by
+  a single variable named "show_device_path".
+* "fancy_sort" is no longer present.
+
+1.2	Functions
+
+* "mount_command" and "unmount_command" have been introduced.
+
+
+2.	Implementation
+
+* Information retrieval is based on "lsblk" instead of "udisks". The use of udisks is optional.
+* Information retrieval does not make use of piping into grep.
+* "awk" and "sort" are no longer used.
+* The disk size in byte is not converted, as the human readable format is printed by lsblk. 
+* Mounting devices is done in the function "mount_command", which can be configured by the user.
+  Again, the use of udisks for mounting is optional.
+* The device blacklist is matched against the output of "lsblk -P", which prints key-value-pairs.
+* The number and letter of user input is retrieved without using "printf" or "grep".
+* The list of devices is sorted by internal, removable and optical devices.
+* The function "fancy_sort" is no longer required, as lsblk sorts the devices accordingly.
+
+
+3.	User interface
+
+* Devices are sorted by internal media, removable media and optical media.
+* Hitting enter is not a valid command.
+* Only partitions are listed, no disks.
+* Opened luks containers are also listed.
