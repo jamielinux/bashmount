@@ -711,7 +711,7 @@ select_action() {
                 done
                 enter_to_contine
                 return 1;;
-            'r')
+            'r'|"")
                 return 0;;
             'q'|'b')
                 exit 0;;
