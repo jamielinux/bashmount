@@ -598,7 +598,7 @@ submenu() {
             msg 'Opening luks volume ...'
             printf '\n'
             if (( udisks == 0 )); then
-                cryptsetup luksOpen -v "${devname}" "luks-${devname##*/}"
+                cryptsetup open --type luks -v "${devname}" "luks-${devname##*/}"
             else
                 udisksctl unlock --block-device "${devname}"
             fi
@@ -609,7 +609,7 @@ submenu() {
             msg 'Closing luks volume ...'
             printf '\n'
             if (( udisks == 0 )); then
-                cryptsetup luksClose "${devname}"
+                cryptsetup close --type luks "${devname}"
             else
                 udisksctl lock --block-device "${devname}"
             fi
