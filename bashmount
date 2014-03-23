@@ -467,9 +467,9 @@ list_devices() {
         print_separator_removable
         for devname in ${removable[@]}; do
             info_label="$(info_fslabel "${devname}")"
-            if [[ -z "${info_label}g" ]]; then
+            if [[ -z "${info_label}" ]]; then
                 info_label="$(info_partlabel "${devname}")"
-                if [[ -z "${info_label}g" ]]; then
+                if [[ -z "${info_label}" ]]; then
                     info_label='No label'
                 fi
             fi
@@ -491,9 +491,9 @@ list_devices() {
         print_separator_optical
         for devname in ${optical[@]}; do
             info_label="$(info_fslabel "${devname}")"
-            if [[ -z "${info_label}g" ]]; then
+            if [[ -z "${info_label}" ]]; then
                 info_label="$(lsblk -dno MODEL "${devname}")"
-                if [[ -z "${info_label}g" ]]; then
+                if [[ -z "${info_label}" ]]; then
                     info_label='No label'
                 fi
             fi
@@ -517,9 +517,9 @@ submenu() {
     check_device "${devname}" || return 1
     local info_label= info_fstype= info_size=
     info_label="$(info_fslabel "${devname}")"
-    if [[ -z "${info_label}g" ]]; then
+    if [[ -z "${info_label}" ]]; then
         info_label="$(info_partlabel "${devname}")"
-        if [[ -z "${info_label}g" ]]; then
+        if [[ -z "${info_label}" ]]; then
             info_label='-'
         fi
     fi
