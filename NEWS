@@ -1,3 +1,9 @@
+bashmount 3.0.0 (2014-03-23)
+  - Allow pressing [enter] to refresh device list
+
+bashmount 3.0.0beta2 (2014-03-23)
+  - Fix newline in UI
+
 bashmount 3.0.0beta1 (2014-03-23)
   - Autodetect the presence of udisksctl, but also allow to manually disable
     the use of udisks
