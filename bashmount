@@ -158,7 +158,7 @@ error() {
 
 clear_screen() {
     clear
-    printf '%s\n\n' "bashmount ${VERSION}"
+    printf '%s\n' "bashmount ${VERSION}"
 }
 
 print_commands() {
@@ -467,6 +467,7 @@ list_devices() {
     # Print output.
     # List internal media.
     if (( show_internal )) && (( ${#internal[*]} )); then
+        printf '\n'
         print_separator_internal
         for devname in ${internal[@]}; do
             info_label="$(info_fslabel "${devname}")"
