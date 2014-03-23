@@ -1,3 +1,22 @@
+bashmount 3.0.0alpha1 (2014-03-23)
+  Many thanks to Lukas B. (aka https://github.com/vitamins) for porting
+  bashmount to use lsblk where appropriate and a variety of other changes:
+
+  - Information retrieval is now based on `lsblk` instead of `udisksctl`,
+    which allows us to get rid of a lot of horrible parsing
+  - Devices are sorted by internal media, removable media and optical media
+  - Only partitions are listed, no disks
+  - Opened luks containers are also listed by default
+
+  Configuration file:
+  - Add "mount_command" and "unmount_command" which can be configured by the
+    user
+  - "optical_devices" and "removable_devices" are no longer present
+  - "show_internal" is set to '1' by default
+  - "show_removable_device_filename" and "show_optical_device_filename" have
+    been replaced by a single variable named "show_device_path"
+  - "fancy_sort" is no longer present
+
 bashmount 2.0.0alpha1 (2013-08-31)
 
   - Port to udisks2
