@@ -421,21 +421,22 @@ list_devices() {
     # "device_number" is the total number of devices listed and equals ${#listed[*]}.
     device_number=0
     for devname in ${all[@]}; do
+        local info_type=
         # Hide blacklisted devices.
         for string in ${blacklist[@]}; do
-            lsblk -dPno NAME,FSTYPE,LABEL,MOUNTPOINT,PARTLABEL "${devname}" \
-            | grep -E "${string}" >/dev/null 2>&1
+            lsblk -dPno NAME,TYPE,FSTYPE,LABEL,MOUNTPOINT,PARTLABEL "${devname}" \
+                | grep -E "${string}" >/dev/null 2>&1
             (( $? )) || continue 2
         done
-        type=$(info_type "${devname}")
+        info_type=$(info_type "${devname}")
         # Sort devices into arrays removable, internal, and optical.
-        if [[ "${type}" == 'part' || "${type}" == 'crypt' ]]; then
+        if [[ "${info_type}" == 'part' || "${info_type}" == 'crypt' ]]; then
             if info_removable "${devname}"; then
                 removable[${#removable[*]}]="${devname}"
             else
                 internal[${#internal[*]}]="${devname}"
             fi
-        elif [[ "${type}" == 'rom' ]]; then
+        elif [[ "${info_type}" == 'rom' ]]; then
             optical[${#optical[*]}]="${devname}"
         else
             continue
