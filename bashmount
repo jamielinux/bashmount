@@ -113,13 +113,19 @@ if [[ -f "${CONFIGFILE}" ]]; then
     fi
 fi
 
-if [[ "${udisks}" == "auto" ]]; then
+if [[ "${udisks}" == "auto" ]] || (( udisks == 1 )); then
     type -p udisksctl >/dev/null 2>&1
     if (( $? != 0 )); then
         udisks=0
     else
         udisks=1
     fi
+fi
+
+type -p lsblk >/dev/null 2>&1
+if (( $? != 0 )); then
+    printf '%s\n' "bashmount: 'lsblk': command not found"
+    exit 69
 fi
 # }}}
 
