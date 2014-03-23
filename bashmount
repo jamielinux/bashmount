@@ -44,9 +44,6 @@ declare -i show_optical=1
 declare -i show_commands=1
 declare -i colourize=1
 declare -i show_device_path=1
-declare -i custom1_show=0
-declare -i custom2_show=0
-declare -i custom3_show=0
 declare -i custom4_show=0
 declare -i custom5_show=0
 declare -i custom6_show=0
@@ -55,6 +52,10 @@ declare -i run_post_unmount=0
 declare -a blacklist=()
 
 mount_command() {
+    if [[ "${1}" == "--read-only" ]]; then
+        mount_options="${mount_options} --read-only"
+        shift 1
+    fi
     if (( udisks == 0 )); then
         read -r -e -p 'Choose the mountpoint directory: ' dir
         while [[ ! -d "${dir}" ]] || findmnt "${dir}" >/dev/null 2>&1; do
@@ -174,25 +175,11 @@ print_submenu_commands() {
     printf '%s' "${BLUE}b${ALL_OFF}: back   ${BLUE}r${ALL_OFF}: refresh"
     printf '%s\n' "   ${BLUE}q${ALL_OFF}: quit   ${BLUE}?${ALL_OFF}: help"
 
-    if (( custom1_show )) || (( custom2_show )) || (( custom3_show )); then
-        printf '\n'
-    fi
-
-    if (( custom1_show )) && [[ -n "${custom1_desc}" ]]; then
-        printf '%s' "${BLUE}1${ALL_OFF}: ${custom1_desc}"
-    fi
-
-    if (( custom2_show )) && [[ -n "${custom2_desc}" ]]; then
-        printf '%s' "   ${BLUE}2${ALL_OFF}: ${custom2_desc}"
-    fi
-
-    if (( custom3_show )) && [[ -n "${custom3_desc}" ]]; then
-        printf '%s' "   ${BLUE}3${ALL_OFF}: ${custom3_desc}"
-    fi
-
-    if (( custom1_show )) || (( custom2_show )) || (( custom3_show )); then
-        printf '\n'
-    fi
+    printf '\n'
+    printf '%s' "${BLUE}1${ALL_OFF}: read-only"
+    printf '%s' "   ${BLUE}2${ALL_OFF}: luksOpen"
+    printf '%s' "   ${BLUE}3${ALL_OFF}: luksClose"
+    printf '\n'
 
     if (( custom4_show )) || (( custom5_show )) || (( custom6_show )); then
         printf '\n'
@@ -565,78 +552,74 @@ submenu() {
     printf '\n'
     read -r -e -p 'Command: ' action
     case "${action}" in
-        'e')    action_eject "${devname}";;
-        'i')    action_info "${devname}";;
-        'm')    action_mount "${devname}";;
-        'o')    action_open "${devname}";;
-        'u')    action_unmount "${devname}";;
-        'b')    return 1;;
-        'r')    return 0;;
-        'q')    exit;;
-        '?')    print_help_sub
-            return 0;;
-        '1')    if (( custom1_show )); then
-                printf '\n'
-                msg "Running custom command ${custom1_desc} ..."
-                printf '\n'
-                custom1_command "${devname}"
-                enter_to_continue
-            else
-                invalid_command
-            fi
-            return 0;;
-        '2')    if (( custom2_show )); then
-                printf '\n'
-                msg "Running custom command ${custom2_desc} ..."
-                printf '\n'
-                custom2_command "${devname}"
-                enter_to_continue
-            else
-                invalid_command
-            fi
-            return 0;;
-        '3')    if (( custom3_show )); then
-                printf '\n'
-                msg "Running custom command ${custom3_desc} ..."
-                printf '\n'
-                custom3_command "${devname}"
-                enter_to_continue
-            else
-                invalid_command
-            fi
-            return 0;;
-        '4')    if (( custom4_show )); then
+        'e') action_eject "${devname}";;
+        'i') action_info "${devname}";;
+        'm') action_mount "${devname}";;
+        'o') action_open "${devname}";;
+        'u') action_unmount "${devname}";;
+        'b') return 1;;
+        'r') return 0;;
+        'q') exit;;
+        '?') print_help_sub
+             return 0;;
+        '1') printf '\n'
+             msg "Mounting read-only ..."
+             printf '\n'
+             mount_command --read-only "${devname}"
+             enter_to_continue
+             return 0;;
+        '2') printf '\n'
+             msg "Opening luks volume ..."
+             printf '\n'
+             if (( udisks == 0 )); then
+                 cryptsetup luksOpen -v "${devname}" "luks-${devname##*/}"
+             else
+                 udisksctl unlock --block-device "${devname}"
+             fi
+             enter_to_continue
+             return 0;;
+        '3') printf '\n'
+             msg "Closing luks volume ..."
+             printf '\n'
+             if (( udisks == 0 )); then
+                 cryptsetup luksClose "${devname}"
+             else
+                 udisksctl lock --block-device "${devname}"
+             fi
+             enter_to_continue
+             return 0;;
+        '4') if (( custom4_show )); then
                 printf '\n'
                 msg "Running custom command ${custom4_desc} ..."
                 printf '\n'
                 custom4_command "${devname}"
                 enter_to_continue
-            else
+             else
                 invalid_command
-            fi
-            return 0;;
-        '5')    if (( custom5_show )); then
-                printf '\n'
-                msg "Running custom command ${custom5_desc} ..."
-                printf '\n'
-                custom5_command "${devname}"
-                enter_to_continue
-            else
-                invalid_command
-            fi
-            return 0;;
-        '6')    if (( custom6_show )); then
-                printf '\n'
-                msg "Running custom command ${custom6_desc} ..."
-                printf '\n'
-                custom6_command "${devname}"
-                enter_to_continue
-            else
-                invalid_command
-            fi
-            return 0;;
-        *)  invalid_command
-            return 0;;
+             fi
+             return 0;;
+        '5') if (( custom5_show )); then
+                 printf '\n'
+                 msg "Running custom command ${custom5_desc} ..."
+                 printf '\n'
+                 custom5_command "${devname}"
+                 enter_to_continue
+             else
+                 invalid_command
+             fi
+             return 0;;
+        '6') if (( custom6_show )); then
+                 printf '\n'
+                 msg "Running custom command ${custom6_desc} ..."
+                 printf '\n'
+                 custom6_command "${devname}"
+                 enter_to_continue
+             else
+                 invalid_command
+             fi
+             return 0;;
+         *)  invalid_command
+             return 0;;
     esac
 }
 
