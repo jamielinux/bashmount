@@ -31,6 +31,24 @@
 
 declare -r VERSION='3.0.2'
 
+if (( "$#" > 0 )); then
+    if [[ "$1" = '-V' || "$1" = '--version' ]]; then
+        cat << EOF
+bashmount ${VERSION}
+Copyright (C) 2013-2014 Jamie Nguyen <j@jamielinux.com>
+Copyright (C) 2014 Lukas B.
+License GPLv2
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Written by Jamie Nguyen and Lukas B.
+EOF
+        exit 2
+    else
+        printf '%s\n' 'bashmount: invalid option.'
+        exit 1
+    fi
+fi
+
 #-------------------------------------#
 #           CONFIGURATION             #
 #-------------------------------------#
@@ -156,11 +174,6 @@ error() {
     printf '%s\n' "${RED}==>${ALL_OFF}${BOLD} ERROR: ${@}${ALL_OFF}" >&2
 }
 
-clear_screen() {
-    clear
-    printf '%s\n' "bashmount ${VERSION}"
-}
-
 print_commands() {
     print_separator_commands
     printf '%s' "${BLUE}e${ALL_OFF}: eject   ${BLUE}i${ALL_OFF}: info"
@@ -246,7 +259,7 @@ print_separator_internal() {
 }
 
 print_help() {
-    clear_screen
+    clear
     print_commands
     print_separator
     printf '%s' "${GREEN}==>${ALL_OFF} "
@@ -275,7 +288,7 @@ print_help() {
 }
 
 print_help_sub() {
-    clear_screen
+    clear
     print_submenu_commands
     printf '\n'
     print_separator
@@ -467,7 +480,6 @@ list_devices() {
     # Print output.
     # List internal media.
     if (( show_internal )) && (( ${#internal[*]} )); then
-        printf '\n'
         print_separator_internal
         for devname in ${internal[@]}; do
             info_label="$(info_fslabel "${devname}")"
@@ -488,10 +500,10 @@ list_devices() {
             fi
             printf '\n'
         done
+        printf '\n'
     fi
     # List removable media.
     if (( show_removable )) && (( ${#removable[*]} )); then
-        printf '\n'
         print_separator_removable
         for devname in ${removable[@]}; do
             info_label="$(info_fslabel "${devname}")"
@@ -512,10 +524,10 @@ list_devices() {
             fi
             printf '\n'
         done
+        printf '\n'
     fi
     # List optical media.
     if (( show_optical )) && (( ${#optical[*]} )); then
-        printf '\n'
         print_separator_optical
         for devname in ${optical[@]}; do
             info_label="$(info_fslabel "${devname}")"
@@ -536,9 +548,9 @@ list_devices() {
             fi
             printf '\n'
         done
+        printf '\n'
     fi
     (( device_number )) || printf '%s\n' 'No devices.'
-    printf '\n'
 }
 
 submenu() {
@@ -553,7 +565,7 @@ submenu() {
     fi
     info_fstype="$(info_fstype "${devname}")"
     info_size="$(info_size "${devname}")"
-    clear_screen
+    clear
     print_separator_device
     printf '%s\n' "device    : ${devname}"
     printf '%s\n' "label     : ${info_label}"
@@ -572,7 +584,6 @@ submenu() {
     fi
     printf '\n'
     print_separator
-    printf '\n'
     read -r -e -p 'Command: ' action
     case "${action}" in
         'e') action_eject "${devname}";;
@@ -659,7 +670,6 @@ select_action() {
     local devname= letter=
     local -i number=
     print_separator
-    printf '\n'
     read -r -e -p 'Command: ' action
     if [[ "${action}" =~ ^[1-9] ]]; then
         if [[ "${action}" =~ ^[1-9][0-9]*$ ]]; then
@@ -706,7 +716,7 @@ select_action() {
                 if [[ "${unmount}" != 'y' ]] && [[ "${unmount}" != 'Y' ]]; then
                     return 0
                 fi
-                clear_screen
+                clear
                 for devname in ${mounted[@]}; do
                     action_unmount "${devname}" || continue
                 done
@@ -732,7 +742,7 @@ declare -a mounted=()
 declare -a listed=()
 
 while true; do
-    clear_screen
+    clear
     list_devices
     (( show_commands )) && print_commands
     select_action
