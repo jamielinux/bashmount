@@ -43,10 +43,10 @@ There is NO WARRANTY, to the extent permitted by law.
 
 Written by Jamie Nguyen and Lukas B.
 EOF
-        exit 2
+        exit 0
     else
         printf '%s\n' 'bashmount: invalid option.'
-        exit 1
+        exit 64
     fi
 fi
 
