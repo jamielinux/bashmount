@@ -1,3 +1,8 @@
+bashmount 3.0.3 (2014-03-24)
+  Thanks to Lukas B. (aka https://github.com/vitamins) for these changes:
+  - Save UI space by removing bashmount header
+  - Add `--version` command-line option
+
 bashmount 3.0.2 (2014-03-23)
   Thanks to Lukas B. (aka https://github.com/vitamins) for these changes:
   - Fix newline in UI (again)

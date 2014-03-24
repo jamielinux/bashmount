@@ -2,7 +2,7 @@
 
 #=============================================================================#
 #        FILE: bashmount                                                      #
-#     VERSION: 3.0.2                                                          #
+#     VERSION: 3.0.3                                                          #
 # DESCRIPTION: bashmount is a menu-driven bash script that can use different  #
 #              backends to easily mount, unmount or eject removable devices   #
 #              without dependencies on udisks or any GUI. An extensive        #
@@ -29,10 +29,10 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 
-declare -r VERSION='3.0.2'
+declare -r VERSION='3.0.3'
 
-if (( "$#" > 0 )); then
-    if [[ "$1" = '-V' || "$1" = '--version' ]]; then
+if (( $# > 0 )); then
+    if [[ "${1}" = '-V' || "${1}" = '--version' ]]; then
         cat << EOF
 bashmount ${VERSION}
 Copyright (C) 2013-2014 Jamie Nguyen <j@jamielinux.com>
