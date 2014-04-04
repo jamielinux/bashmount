@@ -1,3 +1,7 @@
+bashmount 3.1.1 (2014-04-04)
+  Thanks to Lukas B. (aka https://github.com/vitamins) for these changes:
+  - Avoid forked grep process
+
 bashmount 3.1.0 (2014-04-04)
   - Add logic to display disks with no partitions (eg, internal storage on
     some portable media devices)
