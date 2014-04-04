@@ -1,3 +1,7 @@
+bashmount 3.1.0 (2014-04-04)
+  - Add logic to display disks with no partitions (eg, internal storage on
+    some portable media devices)
+
 bashmount 3.0.3 (2014-03-24)
   Thanks to Lukas B. (aka https://github.com/vitamins) for these changes:
   - Save UI space by removing bashmount header
