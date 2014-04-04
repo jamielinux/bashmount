@@ -476,9 +476,7 @@ list_devices() {
         # (eg, internal storage on some portable media devices) then it should
         # be visible.
         elif [[ "${info_type}" == 'disk' ]]; then
-            printf '%s\n' "${all[@]}" \
-                | grep -ow -E "^${devname}[0-9]+" >/dev/null 2>&1
-            (( $? )) || continue
+            [[ "${all[@]}" =~ ${devname}1 ]] && continue
             if info_removable "${devname}"; then
                 removable[${#removable[*]}]="${devname}"
             else
