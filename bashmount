@@ -64,6 +64,7 @@ declare -i show_internal=1
 declare -i show_removable=1
 declare -i show_optical=1
 declare -i show_commands=1
+declare -i show_full_device_names=0
 declare -i colourize=1
 declare -i custom4_show=0
 declare -i custom5_show=0
@@ -302,6 +303,53 @@ print_help_sub() {
     print_separator
     enter_to_continue
 }
+
+print_device_name() {
+    # The padding between device location and device label.
+    local -i padding=22
+    # For device names that are too long, this defines how many characters from
+    # the end of the string we will show.
+    local -i post_length=6
+
+    info_label="$(info_fslabel "${devname}")"
+    if [[ -z "${info_label}" ]]; then
+        if [[ "${1}" == 'optical' ]]; then
+            info_label="$(lsblk -dno MODEL "${devname}")"
+        else
+            info_label="$(info_partlabel "${devname}")"
+        fi
+        [[ -z "${info_label}" ]] && info_label='No label'
+    fi
+
+    listed[device_number]="${devname}"
+    (( device_number++ ))
+
+    printf '%s' " ${BLUE}${device_number})${ALL_OFF}"
+    devnameshort="${devname##*/}"
+
+    if (( !show_full_device_names )) && (( ${#devnameshort} > padding )); then
+        pre_length=$(( padding - post_length - 3 ))
+        devnamepre="${devnameshort:0:pre_length}"
+        devnamepost="${devnameshort:${#devnameshort}-post_length}"
+        devnameshort="${devnamepre}...${devnamepost}"
+    fi
+
+    printf '%s' " ${devnameshort}:"
+
+    # Add padding between device location and device label.
+    devname_length="${#devnameshort}"
+    for (( i=padding ; i>devname_length ; i-- )); do
+        printf '%s' " "
+    done
+
+    printf '%s' " ${info_label}"
+    if info_mounted "${devname}"; then
+        printf '%s' " ${GREEN}[mounted]${ALL_OFF}"
+        mounted[${#mounted[*]}]="${devname}"
+    fi
+    printf '\n'
+}
+
 # }}}
 
 #-------------------------------------#
@@ -456,6 +504,7 @@ list_devices() {
     mounted=()
     # "device_number" is the total number of devices listed and equals ${#listed[*]}.
     device_number=0
+
     for devname in ${all[@]}; do
         local info_type=
         # Hide blacklisted devices.
@@ -493,23 +542,7 @@ list_devices() {
     if (( show_internal )) && (( ${#internal[*]} )); then
         print_separator_internal
         for devname in ${internal[@]}; do
-            info_label="$(info_fslabel "${devname}")"
-            if [[ -z "${info_label}" ]]; then
-                info_label="$(info_partlabel "${devname}")"
-                if [[ -z "${info_label}" ]]; then
-                    info_label='No label'
-                fi
-            fi
-            listed[device_number]="${devname}"
-            (( device_number++ ))
-            printf '%s' " ${BLUE}${device_number})${ALL_OFF}"
-            printf '%s' " ${devname:5}:"
-            printf '%s' " ${info_label}"
-            if info_mounted "${devname}"; then
-                printf '%s' " ${GREEN}[mounted]${ALL_OFF}"
-                mounted[${#mounted[*]}]="${devname}"
-            fi
-            printf '\n'
+            print_device_name
         done
         printf '\n'
     fi
@@ -517,23 +550,7 @@ list_devices() {
     if (( show_removable )) && (( ${#removable[*]} )); then
         print_separator_removable
         for devname in ${removable[@]}; do
-            info_label="$(info_fslabel "${devname}")"
-            if [[ -z "${info_label}" ]]; then
-                info_label="$(info_partlabel "${devname}")"
-                if [[ -z "${info_label}" ]]; then
-                    info_label='No label'
-                fi
-            fi
-            listed[device_number]="${devname}"
-            (( device_number++ ))
-            printf '%s' " ${BLUE}${device_number})${ALL_OFF}"
-            printf '%s' " ${devname:5}:"
-            printf '%s' " ${info_label}"
-            if info_mounted "${devname}"; then
-                printf '%s' " ${GREEN}[mounted]${ALL_OFF}"
-                mounted[${#mounted[*]}]="${devname}"
-            fi
-            printf '\n'
+            print_device_name
         done
         printf '\n'
     fi
@@ -541,23 +558,7 @@ list_devices() {
     if (( show_optical )) && (( ${#optical[*]} )); then
         print_separator_optical
         for devname in ${optical[@]}; do
-            info_label="$(info_fslabel "${devname}")"
-            if [[ -z "${info_label}" ]]; then
-                info_label="$(lsblk -dno MODEL "${devname}")"
-                if [[ -z "${info_label}" ]]; then
-                    info_label='No label'
-                fi
-            fi
-            listed[device_number]="${devname}"
-            (( device_number++ ))
-            printf '%s' " ${BLUE}${device_number})${ALL_OFF}"
-            printf '%s' " ${devname:5}:"
-            printf '%s' " ${info_label}"
-            if info_mounted "${devname}"; then
-                printf '%s' " ${GREEN}[mounted]${ALL_OFF}"
-                mounted[${#mounted[*]}]="${devname}"
-            fi
-            printf '\n'
+            print_device_name optical
         done
         printf '\n'
     fi
