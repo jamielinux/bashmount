@@ -72,6 +72,7 @@ declare -i custom6_show=0
 declare -i run_post_mount=0
 declare -i run_post_unmount=0
 declare -a blacklist=()
+declare -i loop=1
 
 mount_command() {
     if (( udisks == 0 )); then
@@ -447,7 +448,10 @@ action_mount() {
             error "${1} could not be mounted."
         fi
     fi
-    enter_to_continue
+    if (( loop ))
+    then
+      enter_to_continue
+    fi
 }
 
 action_open() {
@@ -468,7 +472,10 @@ action_open() {
     msg "Opening ${1} ..."
     printf '\n'
     filemanager "$(info_mountpath "${1}")"
-    enter_to_continue
+    if (( loop ))
+    then
+      enter_to_continue
+    fi
 }
 
 action_unmount() {
@@ -486,7 +493,10 @@ action_unmount() {
     else
         error "${1} is not mounted."
     fi
-    enter_to_continue
+    if (( loop ))
+    then
+      enter_to_continue
+    fi
 }
 # }}}
 
@@ -753,9 +763,17 @@ declare -i device_number=
 declare -a mounted=()
 declare -a listed=()
 
-while true; do
-    clear
-    list_devices
-    (( show_commands )) && print_commands
-    select_action
-done
+if (( loop ))
+then
+  while true; do
+      clear
+      list_devices
+      (( show_commands )) && print_commands
+      select_action
+  done
+else
+  clear
+  list_devices
+  (( show_commands )) && print_commands
+  select_action
+fi
