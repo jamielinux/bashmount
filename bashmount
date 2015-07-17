@@ -73,7 +73,8 @@ declare -i run_post_mount=0
 declare -i run_post_unmount=0
 declare -a blacklist=()
 declare dev_prefix='/dev/'
-declare default_mount_path='/mnt/'
+declare default_mount_path='/mnt/flash/'
+declare default_iocharset='utf8'
 
 mount_command() {
     if (( udisks == 0 )); then
@@ -86,12 +87,15 @@ mount_command() {
             error 'No such directory, or mountpoint is already in use.'
             read -r -e -p "Choose the mountpoint directory [e.g. ${default_mount_path}${1}]: " dir
         done
-        read -r -e -p 'Select codepage [e.g. 437]: ' cust_codepage
-        if [[ ! ${cust_codepage} == "" ]]; then
-            sudo mount ${mount_options},codepage=${cust_codepage} "${dev_prefix}${1}" "${dir}";
-        else
-            sudo mount ${mount_options} "${dev_prefix}${1}" "${dir}";
-        fi
+	if [[ $(info_fstype ${1})  =~ 'fat' ]]; then
+   	    read -r -e -p 'Select iocharset [e.g. utf8]: ' cust_iocharset
+            if [[ ! ${cust_iocharset} == "" ]]; then
+		cust_iocharset=",iocharset=${cust_iocharset}";
+	    else
+		cust_iocharset=",iocharset=${default_iocharset}";
+	    fi
+	fi
+        sudo mount ${mount_options}${cust_iocharset} "${dev_prefix}${1}" "${dir}";
     else
         udisksctl mount ${mount_options} --block-device "${dev_prefix}${1}"
     fi
