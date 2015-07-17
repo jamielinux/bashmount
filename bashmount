@@ -321,7 +321,7 @@ print_help_sub() {
 
 print_device_name() {
     # The padding between device location and device label.
-    local -i padding=22
+    local -i padding=12
     # For device names that are too long, this defines how many characters from
     # the end of the string we will show.
     local -i post_length=6
