@@ -72,30 +72,41 @@ declare -i custom6_show=0
 declare -i run_post_mount=0
 declare -i run_post_unmount=0
 declare -a blacklist=()
+declare dev_prefix='/dev/'
+declare default_mount_path='/mnt/'
 
 mount_command() {
     if (( udisks == 0 )); then
-        read -r -e -p 'Choose the mountpoint directory: ' dir
+        read -r -e -p "Choose the mountpoint directory [e.g. ${default_mount_path}${1}]: " dir
+        if [[ ${dir} == "" ]]; then
+            dir="${default_mount_path}${1}";
+            if [[ ! -e ${dir} ]]; then mkdir "${dir}"; fi
+        fi
         while [[ ! -d "${dir}" ]] || findmnt "${dir}" >/dev/null 2>&1; do
             error 'No such directory, or mountpoint is already in use.'
-            read -r -e -p 'Choose the mountpoint directory: ' dir
+            read -r -e -p "Choose the mountpoint directory [e.g. ${default_mount_path}${1}]: " dir
         done
-        mount ${mount_options} "${1}" "${dir}"
+        read -r -e -p 'Select codepage [e.g. 437]: ' cust_codepage
+        if [[ ! ${cust_codepage} == "" ]]; then
+            sudo mount ${mount_options},codepage=${cust_codepage} "${dev_prefix}${1}" "${dir}";
+        else
+            sudo mount ${mount_options} "${dev_prefix}${1}" "${dir}";
+        fi
     else
-        udisksctl mount ${mount_options} --block-device "${1}"
+        udisksctl mount ${mount_options} --block-device "${dev_prefix}${1}"
     fi
 }
 
 unmount_command() {
     if (( udisks == 0 )); then
-        umount "${1}"
+        sudo umount "${dev_prefix}${1}"
     else
-        udisksctl unmount --block-device "${1}"
+        udisksctl unmount --block-device "${dev_prefix}${1}"
     fi
 }
 
 filemanager() {
-    cd "${1}" && "$SHELL"
+    pcmanfm "${1}" &
     exit 0
 }
 
@@ -178,12 +189,12 @@ error() {
 
 print_commands() {
     print_separator_commands
-    printf '%s' "${BLUE}e${ALL_OFF}: eject   ${BLUE}i${ALL_OFF}: info"
-    printf '%s' "   ${BLUE}m${ALL_OFF}: mount   ${BLUE}o${ALL_OFF}: open"
-    printf '%s\n\n' "   ${BLUE}u${ALL_OFF}: unmount"
-    printf '%s' "${BLUE}a${ALL_OFF}: unmount all"
-    printf '%s' "   ${BLUE}r${ALL_OFF}: refresh"
-    printf '%s\n\n' "   ${BLUE}q${ALL_OFF}: quit   ${BLUE}?${ALL_OFF}: help"
+    printf '%s' "${BLUE}*e${ALL_OFF}: eject ${BLUE}*i${ALL_OFF}: info"
+    printf '%s' " ${BLUE}*m${ALL_OFF}: mount   ${BLUE}*o${ALL_OFF}: open"
+    printf '%s\n' "  ${BLUE}*u${ALL_OFF}: unmount"
+    printf '%s' " ${BLUE}a${ALL_OFF}: unmount all"
+    printf '%s' "     ${BLUE}r${ALL_OFF}: refresh"
+    printf '%s\n\n' "  ${BLUE}q${ALL_OFF}: quit   ${BLUE}?${ALL_OFF}: help"
 }
 
 print_submenu_commands() {
@@ -313,7 +324,7 @@ print_device_name() {
 
     info_label="$(info_fslabel "${devname}")"
     if [[ -z "${info_label}" ]]; then
-        if [[ "${1}" == 'optical' ]]; then
+        if [[ "${dev_prefix}${1}" == 'optical' ]]; then
             info_label="$(lsblk -dno MODEL "${devname}")"
         else
             info_label="$(info_partlabel "${devname}")"
@@ -344,7 +355,8 @@ print_device_name() {
 
     printf '%s' " ${info_label}"
     if info_mounted "${devname}"; then
-        printf '%s' " ${GREEN}[mounted]${ALL_OFF}"
+        path_mount="$(info_mountpath "${devname}")";
+        printf '%s' " ${GREEN}[$path_mount]${ALL_OFF}"
         mounted[${#mounted[*]}]="${devname}"
     fi
     printf '\n'
@@ -359,42 +371,42 @@ print_device_name() {
 # Returns 0 if the device is registered as removable device in the kernel,
 # otherwise it returns 1.
 info_removable() {
-    [[ "$(lsblk -drno RM "${1}")" == '1' ]]
+    [[ "$(lsblk -drno RM "${dev_prefix}${1}")" == '1' ]]
 }
 
 # Prints the device type, for example partition or disk.
 info_type() {
-    lsblk -drno TYPE "${1}"
+    lsblk -drno TYPE "${dev_prefix}${1}"
 }
 
 # Prints the filesystem label, if present.
 info_fslabel() {
-    lsblk -drno LABEL "${1}"
+    lsblk -drno LABEL "${dev_prefix}${1}"
 }
 
 # Prints the partition label, if present.
 info_partlabel() {
-    lsblk -drno PARTLABEL "${1}"
+    lsblk -drno LABEL "${dev_prefix}${1}"
 }
 
 # Prints the mountpath, if mounted.
 info_mountpath() {
-    findmnt -no TARGET "${1}"
+    findmnt -no TARGET "${dev_prefix}${1}"
 }
 
 # Returns 0 if the device is mounted, 1 otherwise.
 info_mounted() {
-    findmnt -no TARGET "${1}" >/dev/null 2>&1
+    findmnt -no TARGET "${dev_prefix}${1}" >/dev/null 2>&1
 }
 
 # Prints the filesystem type.
 info_fstype() {
-    lsblk -drno FSTYPE "${1}"
+    lsblk -drno FSTYPE "${dev_prefix}${1}"
 }
 
 # Prints the device size.
 info_size() {
-    lsblk -drno SIZE "${1}"
+    lsblk -drno SIZE "${dev_prefix}${1}"
 }
 # }}}
 
@@ -403,7 +415,7 @@ info_size() {
 #-------------------------------------#
 # {{{
 check_device() {
-    if [[ ! -b "${1}" ]]; then
+    if [[ ! -b "${dev_prefix}${1}" ]]; then
         printf '\n'
         error "${1} is no longer available."
         enter_to_continue
@@ -497,7 +509,7 @@ action_unmount() {
 list_devices() {
     local -a all=() removable=() internal=() optical=()
     # The array "all" contains the sorted list of devices returned by lsblk.
-    all=( $(lsblk -plno NAME) )
+    all=( $(lsblk -lno NAME) )
     # The array "listed" contains all devices that are shown to the user.
     listed=()
     # The array "mounted" contains all devices that are listed and mounted.
@@ -509,7 +521,7 @@ list_devices() {
         local info_type=
         # Hide blacklisted devices.
         for string in ${blacklist[@]}; do
-            lsblk -dPno NAME,TYPE,FSTYPE,LABEL,MOUNTPOINT,PARTLABEL "${devname}" \
+            lsblk -dPno NAME,TYPE,FSTYPE,LABEL,MOUNTPOINT,LABEL "${devname}" \
                 | grep -E "${string}" >/dev/null 2>&1
             (( $? )) || continue 2
         done
