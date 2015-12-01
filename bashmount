@@ -111,7 +111,6 @@ unmount_command() {
 
 filemanager() {
     pcmanfm "${1}" &
-    exit 0
 }
 
 post_mount() {
