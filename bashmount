@@ -90,9 +90,9 @@ mount_command() {
 	if [[ $(info_fstype ${1})  =~ 'fat' ]]; then
    	    read -r -e -p 'Select iocharset [e.g. utf8]: ' cust_iocharset
             if [[ ! ${cust_iocharset} == "" ]]; then
-		cust_iocharset=",iocharset=${cust_iocharset}";
+		cust_iocharset=",iocharset=${cust_iocharset},uid=1000,gid=100";
 	    else
-		cust_iocharset=",iocharset=${default_iocharset}";
+		cust_iocharset=",iocharset=${default_iocharset},uid=1000,gid=100";
 	    fi
 	fi
         sudo mount ${mount_options}${cust_iocharset} "${dev_prefix}${1}" "${dir}";
