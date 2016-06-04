@@ -37,10 +37,13 @@ Jamie Nguyen E<lt>j@jamielinux.comE<gt>
 
 Lukas B.
 
+Konstantin Morenko
+
 =head1 COPYRIGHT
 
    Copyright (C) 2013-2014 Jamie Nguyen <j@jamielinux.com>
    Copyright (C) 2014 Lukas B.
+   Copytight (C) 2016 Konstantin Morenko
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License v2 as published by the
