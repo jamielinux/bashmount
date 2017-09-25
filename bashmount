@@ -71,6 +71,7 @@ declare -i custom5_show=0
 declare -i custom6_show=0
 declare -i run_post_mount=0
 declare -i run_post_unmount=0
+declare -i luks_auto=1
 declare -a blacklist=()
 
 mount_command() {
@@ -91,6 +92,38 @@ unmount_command() {
         umount "${1}"
     else
         udisksctl unmount --block-device "${1}"
+    fi
+}
+
+#takes the name of a variable to store the new device name in as first argument
+# second argument is the device to open/unlock
+luksopen_command() {
+    local __mapper_device=$1
+    eval $__mapper_device=""
+    if (( udisks == 0 )); then
+        if cryptsetup open --type luks -v "$2" "luks-${2##*/}"; then
+            eval $__mapper_device='"/dev/mapper/luks-${2##*/}"'
+        else
+            return 1;
+        fi
+    else
+        # find the name of the new device using diff
+          local __before=$(lsblk -plno NAME)
+        if udisksctl unlock --block-device "${2}"; then
+            local __after=$(lsblk -plno NAME)
+            local new_device=$(diff --unchanged-line-format='' <(echo "$__before") <(echo "$__after"))
+            eval $__mapper_device="'${new_device}'"
+        else
+            return 1;
+        fi
+    fi
+}
+
+luksclose_command() {
+    if (( udisks == 0 )); then
+        cryptsetup close --type luks "${devname}"
+    else
+        udisksctl lock --block-device "${devname}"
     fi
 }
 
@@ -433,18 +466,39 @@ action_info() {
 }
 
 action_mount() {
-    check_device "${1}" || return 1
+    local dev=${1}
+    check_device "${dev}" || return 1
     printf '\n'
-    if info_mounted "${1}"; then
-        error "${1} is already mounted."
+
+    if (( $luks_auto )); then
+        local fs=$(info_fstype ${dev})
+        if [[ $fs == "crypto_LUKS" ]]; then 
+            if ! luksopen_command mapped_device ${dev}; then
+                error "${dev} could not be unlocked."
+                enter_to_continue
+                return 1
+            fi
+            if [[ -n "mapped_device" ]]; then
+                devname=$mapped_device
+                dev=$devname
+            else
+                error "Could not determine new device name."
+                enter_to_continue
+                return 1
+            fi
+        fi
+    fi
+    
+    if info_mounted "${dev}"; then
+        error "${dev} is already mounted."
     else
-        msg "Mounting ${1} ..."
-        if mount_command "${1}"; then
-            msg "${1} mounted succesfullly."
-            (( run_post_mount )) && post_mount "${1}"
+        msg "Mounting ${dev} ..."
+        if mount_command "${dev}"; then
+            msg "${dev} mounted succesfullly."
+            (( run_post_mount )) && post_mount "${dev}"
         else
             printf '\n'
-            error "${1} could not be mounted."
+            error "${dev} could not be mounted."
         fi
     fi
     enter_to_continue
@@ -622,10 +676,9 @@ submenu() {
             printf '\n'
             msg 'Opening luks volume ...'
             printf '\n'
-            if (( udisks == 0 )); then
-                cryptsetup open --type luks -v "${devname}" "luks-${devname##*/}"
-            else
-                udisksctl unlock --block-device "${devname}"
+            luksopen_command mapped_device ${devname}
+            if [[ -n "$mapped_device" ]]; then
+                devname=$mapped_device
             fi
             enter_to_continue
             return 0;;
@@ -633,11 +686,7 @@ submenu() {
             printf '\n'
             msg 'Closing luks volume ...'
             printf '\n'
-            if (( udisks == 0 )); then
-                cryptsetup close --type luks "${devname}"
-            else
-                udisksctl lock --block-device "${devname}"
-            fi
+            luksclose_command ${devname}
             enter_to_continue
             return 0;;
         '4')
