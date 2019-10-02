@@ -65,6 +65,7 @@ declare -i show_removable=1
 declare -i show_optical=1
 declare -i show_commands=1
 declare -i show_full_device_names=0
+declare -i confirm_continue=1
 declare -i colourize=1
 declare -i custom4_show=0
 declare -i custom5_show=0
@@ -226,8 +227,10 @@ print_submenu_commands() {
 }
 
 enter_to_continue() {
-    printf '\n'
-    read -r -e -p "Press [${BLUE}enter${ALL_OFF}] to continue: " null
+    if (( confirm_continue )); then
+        printf '\n'
+        read -r -e -p "Press [${BLUE}enter${ALL_OFF}] to continue: " null
+    fi
 }
 
 invalid_command() {
