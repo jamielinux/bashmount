@@ -66,6 +66,7 @@ declare -i show_optical=1
 declare -i show_commands=1
 declare -i show_full_device_names=0
 declare -i colourize=1
+declare -i instant_key=1
 declare -i custom4_show=0
 declare -i custom5_show=0
 declare -i custom6_show=0
@@ -595,8 +596,12 @@ submenu() {
         print_submenu_commands
     fi
     printf '\n'
-    print_separator
-    read -n1 -r -e -p 'Command: ' action
+    if (( instant_key )); then
+        read -N1 -s -r action
+    else
+        print_separator
+        read -r -e -p 'Command: ' action
+    fi
     case "${action}" in
         'e') action_eject "${devname}";;
         'i') action_info "${devname}";;
@@ -681,8 +686,12 @@ submenu() {
 select_action() {
     local devname= letter=
     local -i number=
-    print_separator
-    read -n1 -r -e -p 'Command: ' action
+    if (( instant_key )); then
+        read -N1 -s -r action
+    else
+        print_separator
+        read -r -e -p 'Command: ' action
+    fi
     if [[ "${action}" =~ ^[1-9] ]]; then
         if [[ "${action}" =~ ^[1-9][0-9]*$ ]]; then
             number="$(( action - 1 ))"
