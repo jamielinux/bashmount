@@ -168,9 +168,10 @@ if (( colourize )); then
     fi
     readonly ALL_OFF BOLD BLUE GREEN RED
 fi
+NOTE_ARROW="${GREEN}==>${ALL_OFF} "
 
 msg() {
-    printf '%s\n' "${GREEN}==>${ALL_OFF}${BOLD} ${@}${ALL_OFF}" >&2
+    printf '%s\n' "${NOTE_ARROW}$()${BOLD} ${@}${ALL_OFF}" >&2
 }
 
 error() {
@@ -265,19 +266,21 @@ print_help() {
     clear
     print_commands
     print_separator
-    printf '%s' "${GREEN}==>${ALL_OFF} "
-    printf '%s' "${BOLD}To mount the first device, enter ${ALL_OFF}"
-    printf '%s' "${BLUE}1m${ALL_OFF}"
-    printf '%s\n\n' "${BOLD}.${ALL_OFF}"
-    printf '%s' "${GREEN}==>${ALL_OFF} "
-    printf '%s\n\n' "${BOLD}To open the mountpath directory of the first${ALL_OFF}"
-    printf '%s' "${BOLD}    device (mounting if required), enter "
-    printf '%s' "${BLUE}1o${ALL_OFF}"
-    printf '%s\n\n' "${BOLD}.${ALL_OFF}"
-    printf '%s' "${GREEN}==>${ALL_OFF} "
+    if (( ! instant_key )) ; then
+        printf '%s' "${NOTE_ARROW}"
+        printf '%s' "${BOLD}To mount the first device, enter ${ALL_OFF}"
+        printf '%s' "${BLUE}1m${ALL_OFF}"
+        printf '%s\n\n' "${BOLD}.${ALL_OFF}"
+        printf '%s' "${NOTE_ARROW}"
+        printf '%s\n\n' "${BOLD}To open the mountpath directory of the first${ALL_OFF}"
+        printf '%s' "${BOLD}    device (mounting if required), enter "
+        printf '%s' "${BLUE}1o${ALL_OFF}"
+        printf '%s\n\n' "${BOLD}.${ALL_OFF}"
+    fi
+    printf '%s' "${NOTE_ARROW}"
     printf '%s' "${BOLD}To view a device sub-menu, "
     printf '%s\n\n' "just enter the number.${ALL_OFF}"
-    printf '%s' "${GREEN}==>${ALL_OFF} "
+    printf '%s' "${NOTE_ARROW}"
     printf '%s' "${BLUE}a${ALL_OFF}"
     printf '%s' "${BOLD}, "
     printf '%s' "${BLUE}r${ALL_OFF}"
