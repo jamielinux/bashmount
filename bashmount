@@ -596,7 +596,7 @@ submenu() {
     fi
     printf '\n'
     print_separator
-    read -r -e -p 'Command: ' action
+    read -n1 -r -e -p 'Command: ' action
     case "${action}" in
         'e') action_eject "${devname}";;
         'i') action_info "${devname}";;
@@ -682,7 +682,7 @@ select_action() {
     local devname= letter=
     local -i number=
     print_separator
-    read -r -e -p 'Command: ' action
+    read -n1 -r -e -p 'Command: ' action
     if [[ "${action}" =~ ^[1-9] ]]; then
         if [[ "${action}" =~ ^[1-9][0-9]*$ ]]; then
             number="$(( action - 1 ))"
