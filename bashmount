@@ -643,7 +643,7 @@ submenu() {
 
     # Receive user input.
     local -i retval
-    read -r -e -p "Command: " action
+    read -r -e -N 1 -p "Command: " action
     case "$action" in
         "e") action_eject "$devname" || true;;
         "i") action_info "$devname" || true;;
