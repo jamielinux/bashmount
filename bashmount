@@ -198,21 +198,19 @@ print_submenu_commands() {
 
     if (( custom4_show )) || (( custom5_show )) || (( custom6_show )); then
         printf '\n'
-    fi
 
-    if (( custom4_show )) && [[ -n "$custom4_desc" ]]; then
-        printf '%s' "${BLUE}4${ALL_OFF}: $custom4_desc"
-    fi
+        if (( custom4_show )) && [[ -n "$custom4_desc" ]]; then
+            printf '%s' "${BLUE}4${ALL_OFF}: $custom4_desc"
+        fi
 
-    if (( custom5_show )) && [[ -n "$custom5_desc" ]]; then
-        printf '%s' "   ${BLUE}5${ALL_OFF}: $custom5_desc"
-    fi
+        if (( custom5_show )) && [[ -n "$custom5_desc" ]]; then
+            printf '%s' "   ${BLUE}5${ALL_OFF}: $custom5_desc"
+        fi
 
-    if (( custom6_show )) && [[ -n "$custom6_desc" ]]; then
-        printf '%s' "   ${BLUE}6${ALL_OFF}: $custom6_desc"
-    fi
+        if (( custom6_show )) && [[ -n "$custom6_desc" ]]; then
+            printf '%s' "   ${BLUE}6${ALL_OFF}: $custom6_desc"
+        fi
 
-    if (( custom4_show )) || (( custom5_show )) || (( custom6_show )); then
         printf '\n'
     fi
 }
