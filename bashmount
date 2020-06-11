@@ -187,9 +187,9 @@ print_submenu_commands() {
     printf '%s' "            ${BLUE}o${ALL_OFF}: open"
     printf '\n\n'
 
-    printf '%s' " ${BLUE}b${ALL_OFF}: back"
-    printf '%s' "                 ${BLUE}r${ALL_OFF}: refresh"
-    printf '%s' "         ${BLUE}q${ALL_OFF}: quit"
+    printf '%s' " ${BLUE}[Enter]${ALL_OFF}: refresh"
+    printf '%s' "        ${BLUE}b${ALL_OFF}: back"
+    printf '%s' "            ${BLUE}q${ALL_OFF}: quit"
     printf '%s' "               ${BLUE}?${ALL_OFF}: help"
     printf '\n'
 
@@ -617,7 +617,7 @@ submenu() {
         "o") action_open "$devname";;
         "u") action_unmount "$devname";;
         "b") return 1;;
-        "r") return 0;;
+        ""|"r") return 0;;
         "q") exit;;
         "?") print_help_sub; return 0;;
         "1")
