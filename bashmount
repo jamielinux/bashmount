@@ -151,11 +151,11 @@ if (( colourize )); then
 fi
 
 msg() {
-    printf '%s\n' "${GREEN}==>${ALL_OFF}${BOLD} ${@}${ALL_OFF}" >&2
+    printf '\n%s\n\n' "${GREEN}==>${ALL_OFF}${BOLD} ${@}${ALL_OFF}" >&2
 }
 
 error() {
-    printf '%s\n' "${RED}==>${ALL_OFF}${BOLD} ERROR: ${@}${ALL_OFF}" >&2
+    printf '\n%s\n\n' "${RED}==>${ALL_OFF}${BOLD} ERROR: ${@}${ALL_OFF}" >&2
 }
 
 print_commands() {
@@ -394,7 +394,6 @@ info_size() {
 # {{{
 check_device() {
     if [[ ! -b "$1" ]]; then
-        printf '\n'
         error "$1 is no longer available."
         enter_to_continue
         return 1
@@ -406,9 +405,7 @@ action_eject() {
     check_device "$1" || return 1
     info_mounted "$1" && action_unmount "$1"
     if ! info_mounted "$1"; then
-        printf '\n'
         msg "Ejecting $1 ..."
-        printf '\n'
         eject "$1"
         # Give the device some time to eject. If we don't then sometimes the ejected
         # device will still be present when returning to the main menu.
@@ -424,7 +421,6 @@ action_info() {
 
 action_mount() {
     check_device "$1" || return 1
-    printf '\n'
     if info_mounted "$1"; then
         error "$1 is already mounted."
     else
@@ -433,7 +429,6 @@ action_mount() {
             msg "$1 mounted successfully."
             (( run_post_mount )) && post_mount "$1"
         else
-            printf '\n'
             error "$1 could not be mounted."
         fi
     fi
@@ -442,35 +437,28 @@ action_mount() {
 
 action_open() {
     if ! info_mounted "$1"; then
-        printf '\n'
         msg "Mounting $1 ..."
         if mount_command "$1"; then
             msg "$1 mounted successfully."
             (( run_post_mount )) && post_mount "$1"
         else
-            printf '\n'
             error "$1 could not be mounted."
             enter_to_continue
             return 1
         fi
     fi
-    printf '\n'
     msg "Opening $1 ..."
-    printf '\n'
     filemanager "$(info_mountpath "$1")"
     enter_to_continue
 }
 
 action_unmount() {
-    printf '\n'
     if info_mounted "$1"; then
         msg "Unmounting $1 ..."
-        printf '\n'
         if unmount_command "$1"; then
             msg "$1 unmounted successfully."
             (( run_post_unmount )) && post_unmount "$1"
         else
-            printf '\n'
             error "$1 could not be unmounted."
         fi
     else
@@ -556,17 +544,20 @@ list_devices() {
 }
 
 submenu() {
+    # Make sure device is still valid.
     check_device "$devname" || return 1
+
     local info_label= info_fstype= info_size=
+
+    # Try to use a useful label to identify the device.
     info_label="$(info_fslabel "$devname")"
-    if [[ -z "$info_label" ]]; then
-        info_label="$(info_partlabel "$devname")"
-        if [[ -z "$info_label" ]]; then
-            info_label="-"
-        fi
-    fi
+    [[ -z "$info_label" ]] && info_label="$(info_partlabel "$devname")"
+    [[ -z "$info_label" ]] && info_label="-"
+
     info_fstype="$(info_fstype "$devname")"
     info_size="$(info_size "$devname")"
+
+    # Display the user interface.
     clear
     print_separator_device
     printf '%s\n' "device    : $devname"
@@ -586,6 +577,8 @@ submenu() {
     fi
     printf '\n'
     print_separator
+
+    # Receive user input.
     read -r -e -p "Command: " action
     case "$action" in
         "e") action_eject "$devname";;
@@ -597,21 +590,16 @@ submenu() {
         "r") return 0;;
         "q") exit;;
         "?")
-            print_help_sub
-            return 0;;
+            print_help_sub; return 0;;
         "1")
-            printf '\n'
             msg "Mounting read-only ..."
-            printf '\n'
             mount_options="$default_mount_options --read-only"
             mount_command "$devname"
             mount_options="$default_mount_options"
             enter_to_continue
             return 0;;
         "2")
-            printf '\n'
             msg "Opening luks volume ..."
-            printf '\n'
             if (( udisks == 0 )); then
                 cryptsetup open --type luks -v "$devname" "luks-${devname##*/}"
             else
@@ -620,9 +608,7 @@ submenu() {
             enter_to_continue
             return 0;;
         "3")
-            printf '\n'
             msg "Closing luks volume ..."
-            printf '\n'
             if (( udisks == 0 )); then
                 cryptsetup close --type luks "$devname"
             else
@@ -632,9 +618,7 @@ submenu() {
             return 0;;
         "4")
             if (( custom4_show )); then
-                printf '\n'
                 msg "Running custom command: $custom4_desc ..."
-                printf '\n'
                 custom4_command "$devname"
                 enter_to_continue
             else
@@ -643,9 +627,7 @@ submenu() {
             return 0;;
         "5")
             if (( custom5_show )); then
-                printf '\n'
                 msg "Running custom command: $custom5_desc ..."
-                printf '\n'
                 custom5_command "$devname"
                 enter_to_continue
             else
@@ -654,9 +636,7 @@ submenu() {
             return 0;;
         "6")
             if (( custom6_show )); then
-                printf '\n'
                 msg "Running custom command: $custom6_desc ..."
-                printf '\n'
                 custom6_command "$devname"
                 enter_to_continue
             else
@@ -708,12 +688,12 @@ select_action() {
     else
         case "$action" in
             "a")
-                printf '\n'
                 if (( ! ${#mounted[*]} )); then
                     error "No devices mounted."
                     enter_to_continue
                     return 1
                 fi
+                printf '\n'
                 read -r -e -p "Unmount all devices [y/N]?: " unmount
                 if [[ "$unmount" != "y" ]] && [[ "$unmount" != "Y" ]]; then
                     return 0
