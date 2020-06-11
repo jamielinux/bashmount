@@ -445,7 +445,7 @@ action_open() {
         printf '\n'
         msg "Mounting $1 ..."
         if mount_command "$1"; then
-            msg "$1 mounted succesfullly."
+            msg "$1 mounted successfully."
             (( run_post_mount )) && post_mount "$1"
         else
             printf '\n'
