@@ -69,6 +69,8 @@ mount_command() {
         shift 1
     fi
 
+    msg "Mounting $1 ..."
+
     if (( udisks == 0 )); then
         read -r -e -p "Choose the mountpoint directory: " dir
         while [[ ! -d "$dir" ]] || findmnt "$dir" >/dev/null 2>&1; do
@@ -82,6 +84,8 @@ mount_command() {
 }
 
 unmount_command() {
+    msg "Unmounting $1 ..."
+
     if (( udisks == 0 )); then
         umount "$1"
     else
@@ -430,7 +434,6 @@ action_mount() {
     if info_mounted "$1"; then
         error "$1 is already mounted."
     else
-        msg "Mounting $1 ..."
         if mount_command "$1"; then
             msg "$1 mounted successfully."
             (( run_post_mount )) && post_mount "$1"
@@ -443,7 +446,6 @@ action_mount() {
 
 action_open() {
     if ! info_mounted "$1"; then
-        msg "Mounting $1 ..."
         if mount_command "$1"; then
             msg "$1 mounted successfully."
             (( run_post_mount )) && post_mount "$1"
@@ -460,7 +462,6 @@ action_open() {
 
 action_unmount() {
     if info_mounted "$1"; then
-        msg "Unmounting $1 ..."
         if unmount_command "$1"; then
             msg "$1 unmounted successfully."
             (( run_post_unmount )) && post_unmount "$1"
@@ -600,7 +601,6 @@ submenu() {
         "q") exit;;
         "?") print_help_sub; return 0;;
         "1")
-            msg "Mounting read-only ..."
             mount_command --read-only "$devname"
             enter_to_continue
             return 0;;
