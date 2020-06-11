@@ -165,15 +165,15 @@ print_commands() {
     printf '\n\n'
     print_separator_commands
     printf '%s' " ${BLUE}e${ALL_OFF}: eject"
-    printf '%s' "        ${BLUE}i${ALL_OFF}: info"
+    printf '%s' "          ${BLUE}i${ALL_OFF}: info"
     printf '%s' "        ${BLUE}m${ALL_OFF}: mount"
-    printf '%s' "         ${BLUE}o${ALL_OFF}: open"
-    printf '%s' "         ${BLUE}u${ALL_OFF}: unmount"
+    printf '%s' "        ${BLUE}o${ALL_OFF}: open"
+    printf '%s' "        ${BLUE}u${ALL_OFF}: unmount"
     printf '\n\n'
     printf '%s' " ${BLUE}[Enter]${ALL_OFF}: refresh"
-    printf '%s' "         ${BLUE}a${ALL_OFF}: unmount all"
-    printf '%s' "         ${BLUE}q${ALL_OFF}: quit"
-    printf '%s' "         ${BLUE}?${ALL_OFF}: help"
+    printf '%s' "           ${BLUE}a${ALL_OFF}: unmount all"
+    printf '%s' "        ${BLUE}q${ALL_OFF}: quit"
+    printf '%s' "        ${BLUE}?${ALL_OFF}: help"
     printf '\n\n'
 }
 
@@ -279,8 +279,8 @@ print_help_sub() {
 }
 
 print_device() {
-    local -i padding_name=14
-    local -i padding_label=19
+    local -i padding_name=13
+    local -i padding_label=18
     local -i padding_size=6
 
     label="$(info_fslabel "$devname")"
