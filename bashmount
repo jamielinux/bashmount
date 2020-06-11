@@ -520,7 +520,7 @@ list_devices() {
     done
 
     # List internal media.
-    if (( show_internal )) && (( ${#internal[*]} )); then
+    if (( show_internal == 1 )) && (( ${#internal[*]} )); then
         print_separator_internal
         for devname in ${internal[@]}; do
             print_device_name
@@ -528,7 +528,7 @@ list_devices() {
         printf '\n'
     fi
     # List removable media.
-    if (( show_removable )) && (( ${#removable[*]} )); then
+    if (( show_removable == 1 )) && (( ${#removable[*]} )); then
         print_separator_removable
         for devname in ${removable[@]}; do
             print_device_name
@@ -536,14 +536,14 @@ list_devices() {
         printf '\n'
     fi
     # List optical media.
-    if (( show_optical )) && (( ${#optical[*]} )); then
+    if (( show_optical == 1 )) && (( ${#optical[*]} )); then
         print_separator_optical
         for devname in ${optical[@]}; do
             print_device_name optical
         done
         printf '\n'
     fi
-    (( device_number )) || printf '%s\n' "No devices."
+    (( device_number == 0 )) && printf '%s\n' "No devices."
 }
 
 submenu() {
@@ -574,7 +574,7 @@ submenu() {
     fi
     printf '%s\n' "fstype    : $info_fstype"
     printf '%s\n' "size      : $info_size"
-    if (( show_commands )); then
+    if (( show_commands == 1 )); then
         printf '\n'
         print_submenu_commands
     fi
@@ -619,7 +619,7 @@ submenu() {
             enter_to_continue
             return 0;;
         "4")
-            if (( custom4_show )); then
+            if (( custom4_show == 1 )); then
                 msg "Running custom command: $custom4_desc ..."
                 custom4_command "$devname"
                 enter_to_continue
@@ -628,7 +628,7 @@ submenu() {
             fi
             return 0;;
         "5")
-            if (( custom5_show )); then
+            if (( custom5_show == 1 )); then
                 msg "Running custom command: $custom5_desc ..."
                 custom5_command "$devname"
                 enter_to_continue
@@ -637,7 +637,7 @@ submenu() {
             fi
             return 0;;
         "6")
-            if (( custom6_show )); then
+            if (( custom6_show == 1 )); then
                 msg "Running custom command: $custom6_desc ..."
                 custom6_command "$devname"
                 enter_to_continue
@@ -722,6 +722,6 @@ declare -a listed=()
 while true; do
     clear
     list_devices
-    (( show_commands )) && print_commands
+    (( show_commands == 1 )) && print_commands
     select_action
 done
