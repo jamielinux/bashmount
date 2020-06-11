@@ -403,7 +403,8 @@ action_eject() {
     info_mounted "$1" && action_unmount "$1"
     if ! info_mounted "$1"; then
         msg "Ejecting $1 ..."
-        if (( udisks )); then
+        info_type=$(info_type "$1")
+        if (( udisks )) && [[ "$info_type" != "rom" ]]; then
             udisksctl power-off -b "$1"
         else
             sudo eject "$1"
