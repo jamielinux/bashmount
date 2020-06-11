@@ -411,7 +411,7 @@ action_eject() {
         if (( udisks )); then
             udisksctl power-off -b "$1"
         else
-            eject "$1"
+            sudo eject "$1"
         fi
         # Give the device some time to eject. If we don't then sometimes the ejected
         # device will still be present when returning to the main menu.
