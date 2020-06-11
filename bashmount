@@ -248,9 +248,9 @@ print_help() {
     printf '%s' "${BOLD}To view a device sub-menu, just enter the number.${ALL_OFF}"
     printf '\n\n'
     printf '%s' "  ${GREEN}==>${ALL_OFF}  "
-    printf '%s' "${BLUE}a${ALL_OFF}"
+    printf '%s' "${BLUE}[Enter]${ALL_OFF}"
     printf '%s' "${BOLD}, "
-    printf '%s' "${BLUE}r${ALL_OFF}"
+    printf '%s' "${BLUE}a${ALL_OFF}"
     printf '%s' "${BOLD}, "
     printf '%s' "${BLUE}q${ALL_OFF} "
     printf '%s' "${BOLD}and "
