@@ -98,21 +98,10 @@ post_unmount() {
     return 1
 }
 
-# Load configuration file.
-declare CONFIGFILE=
-
-if [[ -z "$XDG_CONFIG_HOME" ]]; then
-    CONFIGFILE="${HOME}/.config/bashmount/config"
-else
-    CONFIGFILE="${XDG_CONFIG_HOME}/bashmount/config"
-fi
-
-if [[ ! -f "$CONFIGFILE" ]]; then
-    CONFIGFILE="/etc/bashmount.conf"
-fi
-
-if [[ -f "$CONFIGFILE" ]]; then
-    if ! . "$CONFIGFILE"; then
+declare CONFIG_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/bashmount/config"
+[[ ! -f "$CONFIG_FILE" ]] && CONFIG_FILE="/etc/bashmount.conf"
+if [[ -f "$CONFIG_FILE" ]]; then
+    if ! . "$CONFIG_FILE"; then
         printf '%s\n' "bashmount: Failed to source configuration file."
         exit $EX_CONFIG
     fi
