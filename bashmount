@@ -443,6 +443,7 @@ action_mount() {
 }
 
 action_open() {
+    check_device "$1" || return 1
     if ! info_mounted "$1"; then
         if mount_command "$1"; then
             msg "$1 mounted successfully."
