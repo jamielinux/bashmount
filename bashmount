@@ -311,7 +311,7 @@ print_device() {
 
     label="$(info_fslabel "$devname")"
     if [[ -z "$label" ]]; then
-        if [[ "$1" == "optical" ]]; then
+        if (( $# == 1 )) && [[ "$1" == "optical" ]]; then
             label="$(lsblk -dno MODEL "$devname")"
         else
             label="$(info_partlabel "$devname")"
