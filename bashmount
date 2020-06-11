@@ -603,7 +603,7 @@ submenu() {
             printf '\n'
             msg "Mounting read-only ..."
             printf '\n'
-            mount_options="$default_mount_options"" --read-only"
+            mount_options="$default_mount_options --read-only"
             mount_command "$devname"
             mount_options="$default_mount_options"
             enter_to_continue
