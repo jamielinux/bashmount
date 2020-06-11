@@ -101,8 +101,8 @@ post_unmount() {
 }
 
 declare CONFIG_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/bashmount/config"
-[[ ! -f "$CONFIG_FILE" ]] && CONFIG_FILE="/etc/bashmount.conf"
-if [[ -f "$CONFIG_FILE" ]]; then
+[[ ! -e "$CONFIG_FILE" ]] && CONFIG_FILE="/etc/bashmount.conf"
+if [[ -e "$CONFIG_FILE" ]]; then
     if ! . "$CONFIG_FILE"; then
         printf '%s\n' "bashmount: Failed to source configuration file."
         exit $EXIT_CONFIG
