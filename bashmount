@@ -298,10 +298,7 @@ print_help_sub() {
 
 print_device_name() {
     # The padding between device location and device label.
-    local -i padding=22
-    # For device names that are too long, this defines how many characters from
-    # the end of the string we will show.
-    local -i post_length=6
+    local -i padding=16
 
     info_label="$(info_fslabel "$devname")"
     if [[ -z "$info_label" ]]; then
@@ -320,10 +317,8 @@ print_device_name() {
     devnameshort="${devname##*/}"
 
     if (( !show_full_device_names )) && (( ${#devnameshort} > padding )); then
-        pre_length=$(( padding - post_length - 3 ))
-        devnamepre="${devnameshort:0:pre_length}"
-        devnamepost="${devnameshort:${#devnameshort}-post_length}"
-        devnameshort="${devnamepre}...${devnamepost}"
+        pre_length=$(( padding - 3 ))
+        devnameshort="${devnameshort:0:pre_length}..."
     fi
 
     printf '%s' " ${devnameshort}:"
