@@ -297,8 +297,8 @@ print_help_sub() {
 }
 
 print_device_name() {
-    # The padding between device location and device label.
-    local -i padding=16
+    local -i padding_name=16
+    local -i padding_label=16
 
     info_label="$(info_fslabel "$devname")"
     if [[ -z "$info_label" ]]; then
@@ -315,22 +315,35 @@ print_device_name() {
     (( device_number++ ))
 
     printf '%s' " ${BLUE}${device_number})${ALL_OFF}"
-    devnameshort="${devname##*/}"
 
-    if (( !show_full_device_names )) && (( ${#devnameshort} > padding )); then
-        pre_length=$(( padding - 3 ))
-        devnameshort="${devnameshort:0:pre_length}..."
+    devname_short="${devname##*/}"
+    info_label_short="$info_label"
+    if (( !show_full_device_names )); then
+        if (( ${#devname_short} > padding_name )); then
+            len=$(( padding_name - 3 ))
+            devname_short="${devname_short:0:len}..."
+        elif (( ${#info_label} > padding_label )); then
+            label_len=$(( padding_label - 3 ))
+            info_label_short="${info_label:0:label_len}..."
+        fi
     fi
 
-    printf '%s' " ${devnameshort}:"
+    printf '%s' " ${devname_short}:"
 
-    # Add padding between device location and device label.
-    devname_length="${#devnameshort}"
-    for (( i=padding ; i>devname_length ; i-- )); do
+    # Add padding for columns to line up.
+    devname_length="${#devname_short}"
+    for (( i=padding_name; i>devname_length; i--)); do
         printf '%s' " "
     done
 
-    printf '%s' " $info_label"
+    printf '%s' " $info_label_short"
+
+    # Add padding for columns to line up.
+    devlabel_length="${#info_label_short}"
+    for (( i=padding_label; i>devlabel_length; i--)); do
+        printf '%s' " "
+    done
+
     if info_mounted "$devname"; then
         printf '%s' " ${GREEN}[mounted]${ALL_OFF}"
         mounted[${#mounted[*]}]="$devname"
