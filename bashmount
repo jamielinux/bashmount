@@ -160,25 +160,35 @@ error() {
 
 print_commands() {
     print_separator_commands
-    printf '%s' "${BLUE}e${ALL_OFF}: eject   ${BLUE}i${ALL_OFF}: info"
-    printf '%s' "   ${BLUE}m${ALL_OFF}: mount   ${BLUE}o${ALL_OFF}: open"
-    printf '%s\n\n' "   ${BLUE}u${ALL_OFF}: unmount"
+    printf '%s' "${BLUE}e${ALL_OFF}: eject"
+    printf '%s' "   ${BLUE}i${ALL_OFF}: info"
+    printf '%s' "   ${BLUE}m${ALL_OFF}: mount"
+    printf '%s' "   ${BLUE}o${ALL_OFF}: open"
+    printf '%s' "   ${BLUE}u${ALL_OFF}: unmount"
+    printf '\n\n'
     printf '%s' "${BLUE}a${ALL_OFF}: unmount all"
     printf '%s' "   ${BLUE}r${ALL_OFF}: refresh"
-    printf '%s\n\n' "   ${BLUE}q${ALL_OFF}: quit   ${BLUE}?${ALL_OFF}: help"
+    printf '%s' "   ${BLUE}q${ALL_OFF}: quit"
+    printf '%s' "   ${BLUE}?${ALL_OFF}: help"
+    printf '\n\n'
 }
 
 print_submenu_commands() {
     print_separator_commands
-    printf '%s' "${BLUE}e${ALL_OFF}: eject   ${BLUE}i${ALL_OFF}: info"
+    printf '%s' "${BLUE}e${ALL_OFF}: eject"
+    printf '%s' "   ${BLUE}i${ALL_OFF}: info"
     if info_mounted "$devname"; then
         printf '%s' "   ${BLUE}u${ALL_OFF}: unmount"
     else
         printf '%s' "   ${BLUE}m${ALL_OFF}: mount"
     fi
-    printf '%s\n\n' "   ${BLUE}o${ALL_OFF}: open"
-    printf '%s' "${BLUE}b${ALL_OFF}: back   ${BLUE}r${ALL_OFF}: refresh"
-    printf '%s\n' "   ${BLUE}q${ALL_OFF}: quit   ${BLUE}?${ALL_OFF}: help"
+    printf '%s' "   ${BLUE}o${ALL_OFF}: open"
+    printf '\n\n'
+    printf '%s' "${BLUE}b${ALL_OFF}: back"
+    printf '%s' "   ${BLUE}r${ALL_OFF}: refresh"
+    printf '%s' "   ${BLUE}q${ALL_OFF}: quit"
+    printf '%s' "   ${BLUE}?${ALL_OFF}: help"
+    printf '\n'
 
     printf '\n'
     printf '%s' "${BLUE}1${ALL_OFF}: read-only"
