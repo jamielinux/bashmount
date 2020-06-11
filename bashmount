@@ -75,10 +75,7 @@ mount_command() {
         udisksctl mount $mount_options $extra_mount_options --block-device "$1"
     else
         read -r -e -p "Choose the mountpoint directory: " dir
-        while [[ ! -d "$dir" ]] || findmnt "$dir" >/dev/null 2>&1; do
-            error "No such directory, or mountpoint is already in use."
-            read -r -e -p "Choose the mountpoint directory: " dir
-        done
+        [[ ! -e "$dir" ]] && mkdir -p "$dir"
         mount $mount_options $extra_mount_options "$1" "$dir"
     fi
 }
