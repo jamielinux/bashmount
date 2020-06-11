@@ -131,7 +131,7 @@ declare mount_options="$default_mount_options"
 # }}}
 
 #-------------------------------------#
-#         GENERAL FUNCTIONS           #
+#         PRINTING FUNCTIONS          #
 #-------------------------------------#
 # {{{
 unset ALL_OFF BOLD BLUE GREEN RED
@@ -162,40 +162,43 @@ error() {
 
 print_commands() {
     print_separator_commands
-    printf '%s' "${BLUE}e${ALL_OFF}: eject"
-    printf '%s' "   ${BLUE}i${ALL_OFF}: info"
-    printf '%s' "   ${BLUE}m${ALL_OFF}: mount"
-    printf '%s' "   ${BLUE}o${ALL_OFF}: open"
-    printf '%s' "   ${BLUE}u${ALL_OFF}: unmount"
+    printf '%s' "   ${BLUE}e${ALL_OFF}: eject"
+    printf '%s' "      ${BLUE}i${ALL_OFF}: info"
+    printf '%s' "      ${BLUE}m${ALL_OFF}: mount"
+    printf '%s' "      ${BLUE}o${ALL_OFF}: open"
+    printf '%s' "      ${BLUE}u${ALL_OFF}: unmount"
     printf '\n\n'
-    printf '%s' "${BLUE}a${ALL_OFF}: unmount all"
-    printf '%s' "   ${BLUE}r${ALL_OFF}: refresh"
-    printf '%s' "   ${BLUE}q${ALL_OFF}: quit"
-    printf '%s' "   ${BLUE}?${ALL_OFF}: help"
+    printf '%s' "   ${BLUE}[Enter]${ALL_OFF}: refresh"
+    printf '%s' "     ${BLUE}a${ALL_OFF}: unmount all"
+    printf '%s' "      ${BLUE}q${ALL_OFF}: quit"
+    printf '%s' "      ${BLUE}?${ALL_OFF}: help"
     printf '\n\n'
 }
 
 print_submenu_commands() {
     print_separator_commands
-    printf '%s' "${BLUE}e${ALL_OFF}: eject"
-    printf '%s' "   ${BLUE}i${ALL_OFF}: info"
+    printf '%s' "   ${BLUE}e${ALL_OFF}: eject"
+    printf '%s' "           ${BLUE}i${ALL_OFF}: info"
+
     if info_mounted "$devname"; then
-        printf '%s' "   ${BLUE}u${ALL_OFF}: unmount"
+        printf '%s' "           ${BLUE}u${ALL_OFF}: unmount"
     else
-        printf '%s' "   ${BLUE}m${ALL_OFF}: mount"
+        printf '%s' "           ${BLUE}m${ALL_OFF}: mount"
     fi
-    printf '%s' "   ${BLUE}o${ALL_OFF}: open"
+
+    printf '%s' "         ${BLUE}o${ALL_OFF}: open"
     printf '\n\n'
-    printf '%s' "${BLUE}b${ALL_OFF}: back"
-    printf '%s' "   ${BLUE}r${ALL_OFF}: refresh"
-    printf '%s' "   ${BLUE}q${ALL_OFF}: quit"
-    printf '%s' "   ${BLUE}?${ALL_OFF}: help"
+
+    printf '%s' "   ${BLUE}b${ALL_OFF}: back"
+    printf '%s' "            ${BLUE}r${ALL_OFF}: refresh"
+    printf '%s' "        ${BLUE}q${ALL_OFF}: quit"
+    printf '%s' "          ${BLUE}?${ALL_OFF}: help"
     printf '\n'
 
     printf '\n'
-    printf '%s' "${BLUE}1${ALL_OFF}: read-only"
-    printf '%s' "   ${BLUE}2${ALL_OFF}: luksOpen"
-    printf '%s' "   ${BLUE}3${ALL_OFF}: luksClose"
+    printf '%s' "   ${BLUE}1${ALL_OFF}: read-only"
+    printf '%s' "       ${BLUE}2${ALL_OFF}: luksOpen"
+    printf '%s' "       ${BLUE}3${ALL_OFF}: luksClose"
     printf '\n'
 
     if (( custom4_show )) || (( custom5_show )) || (( custom6_show )); then
@@ -229,46 +232,47 @@ invalid_command() {
 }
 
 print_separator() {
-    printf '%s\n\n' "====================================================="
+    printf '%s\n\n' "======================================================================="
 }
 
 print_separator_commands() {
-    printf '%s\n\n' "===================== COMMANDS ======================"
+    printf '%s\n\n' "============================== COMMANDS ==============================="
 }
 
 print_separator_device() {
-    printf '%s\n\n' "==================== DEVICE MENU ===================="
+    printf '%s\n\n' "============================= DEVICE MENU ============================="
 }
 
 print_separator_optical() {
-    printf '%s\n\n' "=================== OPTICAL MEDIA ==================="
+    printf '%s\n\n' "============================ OPTICAL MEDIA ============================"
 }
 
 print_separator_removable() {
-    printf '%s\n\n' "================== REMOVABLE MEDIA =================="
+    printf '%s\n\n' "=========================== REMOVABLE MEDIA ==========================="
 }
 
 print_separator_internal() {
-    printf '%s\n\n' "================== INTERNAL MEDIA ==================="
+    printf '%s\n\n' "=========================== INTERNAL MEDIA ============================"
 }
 
 print_help() {
     clear
     print_commands
     print_separator
-    printf '%s' "${GREEN}==>${ALL_OFF} "
+    printf '%s' "  ${GREEN}==>${ALL_OFF}  "
     printf '%s' "${BOLD}To mount the first device, enter ${ALL_OFF}"
-    printf '%s' "${BLUE}1m${ALL_OFF}"
-    printf '%s\n\n' "${BOLD}.${ALL_OFF}"
-    printf '%s' "${GREEN}==>${ALL_OFF} "
-    printf '%s\n\n' "${BOLD}To open the mountpath directory of the first${ALL_OFF}"
-    printf '%s' "${BOLD}    device (mounting if required), enter "
-    printf '%s' "${BLUE}1o${ALL_OFF}"
-    printf '%s\n\n' "${BOLD}.${ALL_OFF}"
-    printf '%s' "${GREEN}==>${ALL_OFF} "
-    printf '%s' "${BOLD}To view a device sub-menu, "
-    printf '%s\n\n' "just enter the number.${ALL_OFF}"
-    printf '%s' "${GREEN}==>${ALL_OFF} "
+    printf '%s' "${BLUE}1m${ALL_OFF}${BOLD}.${ALL_OFF}"
+    printf '\n\n'
+    printf '%s' "  ${GREEN}==>${ALL_OFF}  "
+    printf '%s' "${BOLD}To open the mountpath directory of the first${ALL_OFF}"
+    printf '\n\n'
+    printf '%s' "       ${BOLD}device (mounting if required), enter "
+    printf '%s' "${BLUE}1o${ALL_OFF}${BOLD}.${ALL_OFF}"
+    printf '\n\n'
+    printf '%s' "  ${GREEN}==>${ALL_OFF}  "
+    printf '%s' "${BOLD}To view a device sub-menu, just enter the number.${ALL_OFF}"
+    printf '\n\n'
+    printf '%s' "  ${GREEN}==>${ALL_OFF}  "
     printf '%s' "${BLUE}a${ALL_OFF}"
     printf '%s' "${BOLD}, "
     printf '%s' "${BLUE}r${ALL_OFF}"
@@ -276,7 +280,8 @@ print_help() {
     printf '%s' "${BLUE}q${ALL_OFF} "
     printf '%s' "${BOLD}and "
     printf '%s' "${BLUE}?${ALL_OFF} "
-    printf '%s\n\n' "${BOLD}do not require a number.${ALL_OFF}"
+    printf '%s' "${BOLD}do not require a number.${ALL_OFF}"
+    printf '\n\n'
     print_separator
     enter_to_continue
 }
@@ -286,19 +291,23 @@ print_help_sub() {
     print_submenu_commands
     printf '\n'
     print_separator
-    printf '%s' "${GREEN}==>${ALL_OFF} "
-    printf '%s\n\n' "${BOLD}To perform a command, enter a character.${ALL_OFF}"
-    printf '%s' "${GREEN}==>${ALL_OFF} "
-    printf '%s' "${BOLD}For example, to mount this device, enter ${ALL_OFF}"
-    printf '%s' "${BLUE}m${ALL_OFF}"
-    printf '%s\n\n' "${BOLD}.${ALL_OFF}"
+    printf '%s' "  ${GREEN}==>${ALL_OFF}  "
+    printf '%s' "${BOLD}To perform a command, enter a character and press ${ALL_OFF}"
+    printf '%s' "${BLUE}[Enter]${ALL_OFF}${BOLD}.${ALL_OFF}"
+    printf '\n\n'
+    printf '%s' "  ${GREEN}==>${ALL_OFF}  "
+    printf '%s' "${BOLD}For example, to mount this device, type ${ALL_OFF}"
+    printf '%s' "${BLUE}m${ALL_OFF} and press ${BLUE}[Enter]${ALL_OFF}"
+    printf '%s' "${BOLD}.${ALL_OFF}"
+    printf '\n\n'
     print_separator
     enter_to_continue
 }
 
 print_device() {
     local -i padding_name=16
-    local -i padding_label=16
+    local -i padding_label=21
+    local -i padding_size=6
 
     info_label="$(info_fslabel "$devname")"
     if [[ -z "$info_label" ]]; then
@@ -320,10 +329,10 @@ print_device() {
     info_label_short="$info_label"
     if (( !show_full_device_names )); then
         if (( ${#devname_short} > padding_name )); then
-            len=$(( padding_name - 3 ))
+            len=$(( padding_name - 4 ))
             devname_short="${devname_short:0:len}..."
         elif (( ${#info_label} > padding_label )); then
-            label_len=$(( padding_label - 3 ))
+            label_len=$(( padding_label - 4 ))
             info_label_short="${info_label:0:label_len}..."
         fi
     fi
@@ -331,18 +340,26 @@ print_device() {
     printf '%s' " ${devname_short}:"
 
     # Add padding for columns to line up.
-    devname_length="${#devname_short}"
-    for (( i=padding_name; i>devname_length; i--)); do
+    for (( i=padding_name; i>${#devname_short}; i--)); do
         printf '%s' " "
     done
 
     printf '%s' " $info_label_short"
 
     # Add padding for columns to line up.
-    devlabel_length="${#info_label_short}"
-    for (( i=padding_label; i>devlabel_length; i--)); do
+    for (( i=padding_label; i>${#info_label_short}; i--)); do
         printf '%s' " "
     done
+
+    size="$(info_size "$devname")"
+    printf '%s' " $size"
+
+    # Add padding for columns to line up.
+    if (( ${#size} < padding_size )); then
+        for (( i=padding_size; i>${#size}; i--)); do
+            printf '%s' " "
+        done
+    fi
 
     if info_mounted "$devname"; then
         mountpath="$(info_mountpath "$devname")"
