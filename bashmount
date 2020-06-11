@@ -391,19 +391,25 @@ check_device() {
 
 action_eject() {
     check_device "$1" || return 1
+    local -i retval=0
     info_mounted "$1" && action_unmount "$1"
     if ! info_mounted "$1"; then
         msg "Ejecting $1 ..."
         device_type=$(info_type "$1")
         if (( udisks )) && [[ "$device_type" != "rom" ]]; then
             udisksctl power-off -b "$1"
+            retval=$?
         else
             sudo eject "$1"
+            retval=$?
         fi
         # Give the device some time to eject. If we don't then sometimes the ejected
         # device will still be present when returning to the main menu.
-        (( $? == 0 )) && sleep 2
-        enter_to_continue
+        if (( retval == 0 )); then
+            sleep 1.5s
+        else
+            enter_to_continue
+        fi
     fi
 }
 
