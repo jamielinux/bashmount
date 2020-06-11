@@ -36,6 +36,9 @@ if (( $# > 0 )) && [[ "$1" = "-v" || "$1" = "--version" ]]; then
     exit 0
 fi
 
+declare -ri EX_CMDNOTFOUND=127
+declare -ri EX_CONFIG=78
+
 #-------------------------------------#
 #           CONFIGURATION             #
 #-------------------------------------#
@@ -111,7 +114,7 @@ fi
 if [[ -f "${CONFIGFILE}" ]]; then
     if ! . "${CONFIGFILE}"; then
         printf '%s\n' "bashmount: Failed to source configuration file."
-        exit 78
+        exit $EX_CONFIG
     fi
 fi
 
@@ -120,13 +123,13 @@ if [[ "${udisks}" == "auto" ]]; then
 elif  (( udisks == 1 )); then
     if ! type -p udisksctl >/dev/null 2>&1; then
         printf '%s\n' "bashmount: 'udisksctl': command not found"
-        exit 69
+        exit $EX_CMDNOTFOUND
     fi
 fi
 
 if ! type -p lsblk >/dev/null 2>&1; then
     printf '%s\n' "bashmount: 'lsblk': command not found"
-    exit 69
+    exit $EX_CMDNOTFOUND
 fi
 
 declare mount_options="${default_mount_options}"
