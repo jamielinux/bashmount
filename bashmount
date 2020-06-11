@@ -93,12 +93,12 @@ filemanager() {
 }
 
 post_mount() {
-    error "No command specified in bashmount configuration file."
+    error "No 'post_mount' command specified in bashmount configuration file."
     return 1
 }
 
 post_unmount() {
-    error "No command specified in bashmount configuration file."
+    error "No 'post_unmount' command specified in bashmount configuration file."
     return 1
 }
 
