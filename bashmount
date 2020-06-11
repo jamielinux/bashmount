@@ -178,6 +178,7 @@ print_commands() {
 }
 
 print_submenu_commands() {
+    printf '\n\n'
     print_separator_commands
     printf '%s' " ${BLUE}e${ALL_OFF}: eject"
     printf '%s' "                ${BLUE}i${ALL_OFF}: info"
@@ -544,18 +545,17 @@ submenu() {
     # Make sure device is still valid.
     check_device "$devname" || return 1
 
-    local label
-    local fstype
-    local size
-
     # Try to use a useful label to identify the device.
-    label="$(info_fslabel "$devname")"
+    local label="$(info_fslabel "$devname")"
     [[ -z "$label" ]] && label="$(info_partlabel "$devname")"
     [[ -z "$label" ]] && label="-"
 
-    fstype="$(info_fstype "$devname")"
-    size="$(info_size "$devname")"
-    used="$(info_used "$devname")"
+    local fstype="$(info_fstype "$devname")"
+    local size="$(info_size "$devname")"
+    local used="$(info_used "$devname")"
+
+    local -i mounted=0
+    info_mounted "$devname" && mounted=1
 
     # Display the user interface.
     clear
@@ -563,7 +563,7 @@ submenu() {
     printf '%s\n' "device    : $devname"
     printf '%s\n' "label     : $label"
     printf '%s' "mounted   : "
-    if info_mounted "$devname"; then
+    if (( mounted )); then
         printf '%s\n' "${GREEN}yes${ALL_OFF}"
         printf '%s\n' "mountpath : $(info_mountpath "$devname")"
     else
@@ -571,7 +571,7 @@ submenu() {
     fi
     printf '%s\n' "fstype    : $fstype"
     printf '%s\n' "size      : $size"
-    printf '%s\n' "used      : $used"
+    (( mounted )) && printf '%s\n' "used      : $used"
     if (( show_commands == 1 )); then
         printf '\n'
         print_submenu_commands
