@@ -412,6 +412,10 @@ info_fstype() {
 info_size() {
     lsblk -drno SIZE "$1" 2>/dev/null
 }
+# Prints the filesystem usage as a percentage.
+info_used() {
+    lsblk -drno FSUSE% "$1" 2>/dev/null
+}
 # }}}
 
 #-------------------------------------#
@@ -447,7 +451,7 @@ action_eject() {
 
 action_info() {
     check_device "$1" || return 1
-    lsblk -o NAME,FSTYPE,MOUNTPOINT,SIZE "$1" | less
+    lsblk -po NAME,FSTYPE,SIZE,FSUSE%,MOUNTPOINT "$1" | less
 }
 
 action_mount() {
@@ -591,6 +595,7 @@ submenu() {
 
     fstype="$(info_fstype "$devname")"
     size="$(info_size "$devname")"
+    used="$(info_used "$devname")"
 
     # Display the user interface.
     clear
@@ -606,6 +611,7 @@ submenu() {
     fi
     printf '%s\n' "fstype    : $fstype"
     printf '%s\n' "size      : $size"
+    printf '%s\n' "used      : $used"
     if (( show_commands == 1 )); then
         printf '\n'
         print_submenu_commands
