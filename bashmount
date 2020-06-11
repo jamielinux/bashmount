@@ -661,7 +661,7 @@ select_action() {
                 return 1
             fi
             devname=${listed[number]}
-            while :; do
+            while true; do
                 submenu || break
             done
         elif [[ "$action" =~ ^[1-9][0-9]*[eimou]$ ]]; then
