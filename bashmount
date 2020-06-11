@@ -338,14 +338,14 @@ print_device() {
     printf '%s' " ${devname_short}:"
 
     # Add padding for columns to line up.
-    for (( i=padding_name; i>${#devname_short}; i--)); do
+    for (( i=padding_name; i>${#devname_short}; i-- )); do
         printf '%s' " "
     done
 
     printf '%s' " $label_short"
 
     # Add padding for columns to line up.
-    for (( i=padding_label; i>${#label_short}; i--)); do
+    for (( i=padding_label; i>${#label_short}; i-- )); do
         printf '%s' " "
     done
 
@@ -354,7 +354,7 @@ print_device() {
 
     # Add padding for columns to line up.
     if (( ${#size} < padding_size )); then
-        for (( i=padding_size; i>${#size}; i--)); do
+        for (( i=padding_size; i>${#size}; i-- )); do
             printf '%s' " "
         done
     fi
