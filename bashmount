@@ -36,8 +36,8 @@ if (( $# > 0 )) && [[ "$1" == "-v" || "$1" == "--version" ]]; then
     exit 0
 fi
 
-declare -ri EX_CMDNOTFOUND=127
-declare -ri EX_CONFIG=78
+declare -ri EXIT_CMDNOTFOUND=127
+declare -ri EXIT_CONFIG=78
 
 #-------------------------------------#
 #           CONFIGURATION             #
@@ -113,7 +113,7 @@ declare CONFIG_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/bashmount/config"
 if [[ -f "$CONFIG_FILE" ]]; then
     if ! . "$CONFIG_FILE"; then
         printf '%s\n' "bashmount: Failed to source configuration file."
-        exit $EX_CONFIG
+        exit $EXIT_CONFIG
     fi
 fi
 
@@ -126,13 +126,13 @@ if [[ "$udisks" == "auto" ]]; then
 elif (( udisks == 1 )); then
     if ! type -p udisksctl >/dev/null 2>&1; then
         printf '%s\n' "bashmount: 'udisksctl': command not found"
-        exit $EX_CMDNOTFOUND
+        exit $EXIT_CMDNOTFOUND
     fi
 fi
 
 if ! type -p lsblk >/dev/null 2>&1; then
     printf '%s\n' "bashmount: 'lsblk': command not found"
-    exit $EX_CMDNOTFOUND
+    exit $EXIT_CMDNOTFOUND
 fi
 
 declare mount_options="$default_mount_options"
