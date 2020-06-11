@@ -309,6 +309,7 @@ print_device_name() {
         fi
         [[ -z "$info_label" ]] && info_label="No label"
     fi
+    info_label="$(printf '%s' "$info_label" | sed -e 's/\\x20/ /g')"
 
     listed[device_number]="$devname"
     (( device_number++ ))
