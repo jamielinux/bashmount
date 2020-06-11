@@ -477,13 +477,9 @@ action_unmount() {
 # {{{
 list_devices() {
     local -a all=() removable=() internal=() optical=()
-    # The array "all" contains the sorted list of devices returned by lsblk.
-    all=( $(lsblk -plno NAME) )
-    # The array "listed" contains all devices that are shown to the user.
-    listed=()
-    # The array "mounted" contains all devices that are listed and mounted.
-    mounted=()
-    # "device_number" is the total number of devices listed and equals ${#listed[*]}.
+    all=( $(lsblk -plno NAME) )  # all devices
+    listed=()                    # all devices that are shown (ie, not hidden)
+    mounted=()                   # all devices that are shown and mounted
     device_number=0
 
     for devname in ${all[@]}; do
@@ -656,6 +652,7 @@ select_action() {
     read -r -e -p "Command: " action
     if [[ "$action" =~ ^[1-9] ]]; then
         if [[ "$action" =~ ^[1-9][0-9]*$ ]]; then
+            # Zero-based numbering for array elements, so subtract one.
             number="$(( action - 1 ))"
             if (( number >= device_number )); then
                 invalid_command
