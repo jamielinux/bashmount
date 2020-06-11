@@ -284,14 +284,17 @@ print_device() {
     local -i padding_label=18
     local -i padding_size=6
 
-    label="$(info_fslabel "$devname")"
+    local label="$(info_fslabel "$devname")"
+    local fstype="$(info_fstype "$devname")"
     if [[ -z "$label" ]]; then
         if (( $# == 1 )) && [[ "$1" == "optical" ]]; then
             label="$(lsblk -dno MODEL "$devname")"
         else
             label="$(info_partlabel "$devname")"
         fi
-        [[ -z "$label" ]] && label="No label"
+        [[ -z "$label" ]] && [[ "$fstype" == "crypto_LUKS" ]] \
+            && label="crypto_LUKS"
+        [[ -z "$label" ]] && label="-"
     fi
     label="$(printf '%s' "$label" | sed -e 's/\\x20/ /g')"
 
@@ -330,7 +333,14 @@ print_device() {
         done
     fi
 
-    if info_mounted "$devname"; then
+    if [[ "$fstype" == "crypto_LUKS" ]]; then
+        local -i unlocked=0
+        local uuid="$(info_uuid "$devname")"
+        for dev in "${all[@]}"; do
+            [[ "$dev" == "/dev/mapper/luks-$uuid" ]] && unlocked=1 && break
+        done
+        (( unlocked )) && printf '%s' " ${GREEN}decrypted: luks-${uuid:0:4}...${ALL_OFF}"
+    elif info_mounted "$devname"; then
         mountpath="$(info_mountpath "$devname")"
         printf '%s' " ${GREEN}[$mountpath]${ALL_OFF}"
         mounted[${#mounted[*]}]="$devname"
@@ -365,15 +375,15 @@ info_mountpath() {
 info_mounted() {
     findmnt -no TARGET "$1" >/dev/null 2>&1
 }
-# Prints the filesystem type.
 info_fstype() {
     lsblk -drno FSTYPE "$1" 2>/dev/null
 }
-# Prints the device size.
 info_size() {
     lsblk -drno SIZE "$1" 2>/dev/null
 }
-# Prints the filesystem usage as a percentage.
+info_uuid() {
+    lsblk -drno UUID "$1" 2>/dev/null
+}
 info_used() {
     lsblk -drno FSUSE% "$1" 2>/dev/null
 }
@@ -490,8 +500,6 @@ list_devices() {
     done < <(lsblk -plno NAME)
 
     for devname in "${all[@]}"; do
-        local device_type=
-
         # Hide blacklisted devices.
         for string in "${blacklist[@]}"; do
             lsblk -dPno NAME,TYPE,FSTYPE,LABEL,MOUNTPOINT,PARTLABEL,UUID "$devname" \
@@ -499,14 +507,37 @@ list_devices() {
             (( $? )) || continue 2
         done
 
-        device_type=$(info_type "$devname")
-
         # Sort devices into arrays removable, internal, and optical.
-        if [[ "$device_type" == "part" || "$device_type" == "crypt" ]]; then
+        local device_type=$(info_type "$devname")
+        if [[ "$device_type" == "part" ]]; then
             if info_removable "$devname"; then
                 removable[${#removable[*]}]="$devname"
             else
                 internal[${#internal[*]}]="$devname"
+            fi
+        elif [[ "$device_type" == "crypt" ]]; then
+            local -i parent_found=0
+            for parent_devname in "${all[@]}"; do
+                local parent_uuid="$(info_uuid "$parent_devname")"
+                [[ -z "$parent_uuid" ]] && continue
+                if [[ "/dev/mapper/luks-$parent_uuid" == "$devname" ]]; then
+                    if info_removable "$parent_devname"; then
+                        removable[${#removable[*]}]="$devname"
+                        parent_found=1
+                        break
+                    else
+                        internal[${#internal[*]}]="$devname"
+                        parent_found=1
+                        break
+                    fi
+                fi
+            done
+            if (( !parent_found )); then
+                if info_removable "$devname"; then
+                    removable[${#removable[*]}]="$devname"
+                else
+                    internal[${#internal[*]}]="$devname"
+                fi
             fi
         # Normally we don't want to see a "disk", but if it has no partitions
         # (eg, internal storage on some portable media devices) then it should
