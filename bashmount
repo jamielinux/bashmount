@@ -31,23 +31,9 @@
 
 declare -r VERSION="3.2.0"
 
-if (( $# > 0 )); then
-    if [[ "${1}" = "-V" || "${1}" = "--version" ]]; then
-        cat << EOF
-bashmount ${VERSION}
-Copyright (C) 2013-2014 Jamie Nguyen <j@jamielinux.com>
-Copyright (C) 2014 Lukas B.
-License GPLv2: GNU GPL version 2 <http://www.gnu.org/licenses/gpl-2.0.html>.
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
-
-Written by Jamie Nguyen and Lukas B.
-EOF
-        exit 0
-    else
-        printf '%s\n' "bashmount: invalid option."
-        exit 64
-    fi
+if (( $# > 0 )) && [[ "$1" = "-v" || "$1" = "--version" ]]; then
+    printf '%s\n' "$VERSION"
+    exit 0
 fi
 
 #-------------------------------------#
