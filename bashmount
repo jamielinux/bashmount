@@ -345,7 +345,8 @@ print_device_name() {
     done
 
     if info_mounted "$devname"; then
-        printf '%s' " ${GREEN}[mounted]${ALL_OFF}"
+        mountpath="$(info_mountpath "$devname")"
+        printf '%s' " ${GREEN}[$mountpath]${ALL_OFF}"
         mounted[${#mounted[*]}]="$devname"
     fi
     printf '\n'
