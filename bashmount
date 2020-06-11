@@ -633,7 +633,7 @@ submenu() {
         "4")
             if (( custom4_show )); then
                 printf '\n'
-                msg "Running custom command $custom4_desc ..."
+                msg "Running custom command: $custom4_desc ..."
                 printf '\n'
                 custom4_command "$devname"
                 enter_to_continue
@@ -644,7 +644,7 @@ submenu() {
         "5")
             if (( custom5_show )); then
                 printf '\n'
-                msg "Running custom command $custom5_desc ..."
+                msg "Running custom command: $custom5_desc ..."
                 printf '\n'
                 custom5_command "$devname"
                 enter_to_continue
@@ -655,7 +655,7 @@ submenu() {
         "6")
             if (( custom6_show )); then
                 printf '\n'
-                msg "Running custom command $custom6_desc ..."
+                msg "Running custom command: $custom6_desc ..."
                 printf '\n'
                 custom6_command "$devname"
                 enter_to_continue
