@@ -95,7 +95,6 @@ unmount_command() {
 
 filemanager() {
     cd "$1" && "$SHELL"
-    exit 0
 }
 
 post_mount() {
@@ -417,7 +416,7 @@ action_eject() {
         eject "$1"
         # Give the device some time to eject. If we don't then sometimes the ejected
         # device will still be present when returning to the main menu.
-        sleep 2
+        (( $? == 0 )) && sleep 2
         enter_to_continue
     fi
 }
