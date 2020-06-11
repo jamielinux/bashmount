@@ -604,19 +604,19 @@ submenu() {
     # Display the user interface.
     clear
     print_separator_device
-    printf '%s\n' "device    : $devname"
-    printf '%s\n' "label     : $label"
-    printf '%s' "mounted   : "
+    printf '%s\n' " device    : $devname"
+    printf '%s\n' " label     : $label"
+    printf '%s' " mounted   : "
     if (( mounted )); then
         printf '%s\n' "${GREEN}yes${ALL_OFF}"
-        printf '%s\n' "mountpath : $(info_mountpath "$devname")"
+        printf '%s\n' " mountpath : $(info_mountpath "$devname")"
     else
         printf '%s\n' "${RED}no${ALL_OFF}"
     fi
-    printf '%s\n' "fstype    : $fstype"
-    printf '%s\n' "uuid      : $uuid"
-    printf '%s\n' "size      : $size"
-    (( mounted )) && printf '%s\n' "used      : $used"
+    printf '%s\n' " fstype    : $fstype"
+    printf '%s\n' " uuid      : $uuid"
+    printf '%s\n' " size      : $size"
+    (( mounted )) && printf '%s\n' " used      : $used"
     if (( show_commands == 1 )); then
         printf '\n'
         print_submenu_commands
