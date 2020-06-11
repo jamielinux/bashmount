@@ -65,26 +65,26 @@ declare -a blacklist=()
 mount_command() {
     if (( udisks == 0 )); then
         read -r -e -p "Choose the mountpoint directory: " dir
-        while [[ ! -d "${dir}" ]] || findmnt "${dir}" >/dev/null 2>&1; do
+        while [[ ! -d "$dir" ]] || findmnt "$dir" >/dev/null 2>&1; do
             error "No such directory, or mountpoint is already in use."
             read -r -e -p "Choose the mountpoint directory: " dir
         done
-        mount ${mount_options} "${1}" "${dir}"
+        mount $mount_options "$1" "$dir"
     else
-        udisksctl mount ${mount_options} --block-device "${1}"
+        udisksctl mount $mount_options --block-device "$1"
     fi
 }
 
 unmount_command() {
     if (( udisks == 0 )); then
-        umount "${1}"
+        umount "$1"
     else
-        udisksctl unmount --block-device "${1}"
+        udisksctl unmount --block-device "$1"
     fi
 }
 
 filemanager() {
-    cd "${1}" && "$SHELL"
+    cd "$1" && "$SHELL"
     exit 0
 }
 
@@ -101,24 +101,24 @@ post_unmount() {
 # Load configuration file.
 declare CONFIGFILE=
 
-if [[ -z "${XDG_CONFIG_HOME}" ]]; then
+if [[ -z "$XDG_CONFIG_HOME" ]]; then
     CONFIGFILE="${HOME}/.config/bashmount/config"
 else
     CONFIGFILE="${XDG_CONFIG_HOME}/bashmount/config"
 fi
 
-if [[ ! -f "${CONFIGFILE}" ]]; then
+if [[ ! -f "$CONFIGFILE" ]]; then
     CONFIGFILE="/etc/bashmount.conf"
 fi
 
-if [[ -f "${CONFIGFILE}" ]]; then
-    if ! . "${CONFIGFILE}"; then
+if [[ -f "$CONFIGFILE" ]]; then
+    if ! . "$CONFIGFILE"; then
         printf '%s\n' "bashmount: Failed to source configuration file."
         exit $EX_CONFIG
     fi
 fi
 
-if [[ "${udisks}" == "auto" ]]; then
+if [[ "$udisks" == "auto" ]]; then
     type -p udisksctl >/dev/null 2>&1 && udisks=1 || udisks=0
 elif  (( udisks == 1 )); then
     if ! type -p udisksctl >/dev/null 2>&1; then
@@ -132,7 +132,7 @@ if ! type -p lsblk >/dev/null 2>&1; then
     exit $EX_CMDNOTFOUND
 fi
 
-declare mount_options="${default_mount_options}"
+declare mount_options="$default_mount_options"
 # }}}
 
 #-------------------------------------#
@@ -178,7 +178,7 @@ print_commands() {
 print_submenu_commands() {
     print_separator_commands
     printf '%s' "${BLUE}e${ALL_OFF}: eject   ${BLUE}i${ALL_OFF}: info"
-    if info_mounted "${devname}"; then
+    if info_mounted "$devname"; then
         printf '%s' "   ${BLUE}u${ALL_OFF}: unmount"
     else
         printf '%s' "   ${BLUE}m${ALL_OFF}: mount"
@@ -197,16 +197,16 @@ print_submenu_commands() {
         printf '\n'
     fi
 
-    if (( custom4_show )) && [[ -n "${custom4_desc}" ]]; then
-        printf '%s' "${BLUE}4${ALL_OFF}: ${custom4_desc}"
+    if (( custom4_show )) && [[ -n "$custom4_desc" ]]; then
+        printf '%s' "${BLUE}4${ALL_OFF}: $custom4_desc"
     fi
 
-    if (( custom5_show )) && [[ -n "${custom5_desc}" ]]; then
-        printf '%s' "   ${BLUE}5${ALL_OFF}: ${custom5_desc}"
+    if (( custom5_show )) && [[ -n "$custom5_desc" ]]; then
+        printf '%s' "   ${BLUE}5${ALL_OFF}: $custom5_desc"
     fi
 
-    if (( custom6_show )) && [[ -n "${custom6_desc}" ]]; then
-        printf '%s' "   ${BLUE}6${ALL_OFF}: ${custom6_desc}"
+    if (( custom6_show )) && [[ -n "$custom6_desc" ]]; then
+        printf '%s' "   ${BLUE}6${ALL_OFF}: $custom6_desc"
     fi
 
     if (( custom4_show )) || (( custom5_show )) || (( custom6_show )); then
@@ -300,17 +300,17 @@ print_device_name() {
     # the end of the string we will show.
     local -i post_length=6
 
-    info_label="$(info_fslabel "${devname}")"
-    if [[ -z "${info_label}" ]]; then
-        if [[ "${1}" == "optical" ]]; then
-            info_label="$(lsblk -dno MODEL "${devname}")"
+    info_label="$(info_fslabel "$devname")"
+    if [[ -z "$info_label" ]]; then
+        if [[ "$1" == "optical" ]]; then
+            info_label="$(lsblk -dno MODEL "$devname")"
         else
-            info_label="$(info_partlabel "${devname}")"
+            info_label="$(info_partlabel "$devname")"
         fi
-        [[ -z "${info_label}" ]] && info_label="No label"
+        [[ -z "$info_label" ]] && info_label="No label"
     fi
 
-    listed[device_number]="${devname}"
+    listed[device_number]="$devname"
     (( device_number++ ))
 
     printf '%s' " ${BLUE}${device_number})${ALL_OFF}"
@@ -331,10 +331,10 @@ print_device_name() {
         printf '%s' " "
     done
 
-    printf '%s' " ${info_label}"
-    if info_mounted "${devname}"; then
+    printf '%s' " $info_label"
+    if info_mounted "$devname"; then
         printf '%s' " ${GREEN}[mounted]${ALL_OFF}"
-        mounted[${#mounted[*]}]="${devname}"
+        mounted[${#mounted[*]}]="$devname"
     fi
     printf '\n'
 }
@@ -348,42 +348,42 @@ print_device_name() {
 # Returns 0 if the device is registered as removable device in the kernel,
 # otherwise it returns 1.
 info_removable() {
-    [[ "$(lsblk -drno RM "${1}")" == "1" ]]
+    [[ "$(lsblk -drno RM "$1")" == "1" ]]
 }
 
 # Prints the device type, for example partition or disk.
 info_type() {
-    lsblk -drno TYPE "${1}"
+    lsblk -drno TYPE "$1"
 }
 
 # Prints the filesystem label, if present.
 info_fslabel() {
-    lsblk -drno LABEL "${1}"
+    lsblk -drno LABEL "$1"
 }
 
 # Prints the partition label, if present.
 info_partlabel() {
-    lsblk -drno PARTLABEL "${1}"
+    lsblk -drno PARTLABEL "$1"
 }
 
 # Prints the mountpath, if mounted.
 info_mountpath() {
-    findmnt -no TARGET "${1}"
+    findmnt -no TARGET "$1"
 }
 
 # Returns 0 if the device is mounted, 1 otherwise.
 info_mounted() {
-    findmnt -no TARGET "${1}" >/dev/null 2>&1
+    findmnt -no TARGET "$1" >/dev/null 2>&1
 }
 
 # Prints the filesystem type.
 info_fstype() {
-    lsblk -drno FSTYPE "${1}"
+    lsblk -drno FSTYPE "$1"
 }
 
 # Prints the device size.
 info_size() {
-    lsblk -drno SIZE "${1}"
+    lsblk -drno SIZE "$1"
 }
 # }}}
 
@@ -392,9 +392,9 @@ info_size() {
 #-------------------------------------#
 # {{{
 check_device() {
-    if [[ ! -b "${1}" ]]; then
+    if [[ ! -b "$1" ]]; then
         printf '\n'
-        error "${1} is no longer available."
+        error "$1 is no longer available."
         enter_to_continue
         return 1
     fi
@@ -402,13 +402,13 @@ check_device() {
 }
 
 action_eject() {
-    check_device "${1}" || return 1
-    info_mounted "${1}" && action_unmount "${1}"
-    if ! info_mounted "${1}"; then
+    check_device "$1" || return 1
+    info_mounted "$1" && action_unmount "$1"
+    if ! info_mounted "$1"; then
         printf '\n'
-        msg "Ejecting ${1} ..."
+        msg "Ejecting $1 ..."
         printf '\n'
-        eject "${1}"
+        eject "$1"
         # Give the device some time to eject. If we don't then sometimes the ejected
         # device will still be present when returning to the main menu.
         enter_to_continue
@@ -417,63 +417,63 @@ action_eject() {
 }
 
 action_info() {
-    check_device "${1}" || return 1
-    lsblk -o NAME,FSTYPE,MOUNTPOINT,SIZE "${1}" | less
+    check_device "$1" || return 1
+    lsblk -o NAME,FSTYPE,MOUNTPOINT,SIZE "$1" | less
 }
 
 action_mount() {
-    check_device "${1}" || return 1
+    check_device "$1" || return 1
     printf '\n'
-    if info_mounted "${1}"; then
-        error "${1} is already mounted."
+    if info_mounted "$1"; then
+        error "$1 is already mounted."
     else
-        msg "Mounting ${1} ..."
-        if mount_command "${1}"; then
-            msg "${1} mounted successfully."
-            (( run_post_mount )) && post_mount "${1}"
+        msg "Mounting $1 ..."
+        if mount_command "$1"; then
+            msg "$1 mounted successfully."
+            (( run_post_mount )) && post_mount "$1"
         else
             printf '\n'
-            error "${1} could not be mounted."
+            error "$1 could not be mounted."
         fi
     fi
     enter_to_continue
 }
 
 action_open() {
-    if ! info_mounted "${1}"; then
+    if ! info_mounted "$1"; then
         printf '\n'
-        msg "Mounting ${1} ..."
-        if mount_command "${1}"; then
-            msg "${1} mounted succesfullly."
-            (( run_post_mount )) && post_mount "${1}"
+        msg "Mounting $1 ..."
+        if mount_command "$1"; then
+            msg "$1 mounted succesfullly."
+            (( run_post_mount )) && post_mount "$1"
         else
             printf '\n'
-            error "${1} could not be mounted."
+            error "$1 could not be mounted."
             enter_to_continue
             return 1
         fi
     fi
     printf '\n'
-    msg "Opening ${1} ..."
+    msg "Opening $1 ..."
     printf '\n'
-    filemanager "$(info_mountpath "${1}")"
+    filemanager "$(info_mountpath "$1")"
     enter_to_continue
 }
 
 action_unmount() {
     printf '\n'
-    if info_mounted "${1}"; then
-        msg "Unmounting ${1} ..."
+    if info_mounted "$1"; then
+        msg "Unmounting $1 ..."
         printf '\n'
-        if unmount_command "${1}"; then
-            msg "${1} unmounted successfully."
-            (( run_post_unmount )) && post_unmount "${1}"
+        if unmount_command "$1"; then
+            msg "$1 unmounted successfully."
+            (( run_post_unmount )) && post_unmount "$1"
         else
             printf '\n'
-            error "${1} could not be unmounted."
+            error "$1 could not be unmounted."
         fi
     else
-        error "${1} is not mounted."
+        error "$1 is not mounted."
     fi
     enter_to_continue
 }
@@ -498,30 +498,30 @@ list_devices() {
         local info_type=
         # Hide blacklisted devices.
         for string in ${blacklist[@]}; do
-            lsblk -dPno NAME,TYPE,FSTYPE,LABEL,MOUNTPOINT,PARTLABEL "${devname}" \
-                | grep -E "${string}" >/dev/null 2>&1
+            lsblk -dPno NAME,TYPE,FSTYPE,LABEL,MOUNTPOINT,PARTLABEL "$devname" \
+                | grep -E "$string" >/dev/null 2>&1
             (( $? )) || continue 2
         done
-        info_type=$(info_type "${devname}")
+        info_type=$(info_type "$devname")
         # Sort devices into arrays removable, internal, and optical.
-        if [[ "${info_type}" == "part" || "${info_type}" == "crypt" ]]; then
-            if info_removable "${devname}"; then
-                removable[${#removable[*]}]="${devname}"
+        if [[ "$info_type" == "part" || "$info_type" == "crypt" ]]; then
+            if info_removable "$devname"; then
+                removable[${#removable[*]}]="$devname"
             else
-                internal[${#internal[*]}]="${devname}"
+                internal[${#internal[*]}]="$devname"
             fi
         # Normally we don't want to see a "disk", but if it has no partitions
         # (eg, internal storage on some portable media devices) then it should
         # be visible.
-        elif [[ "${info_type}" == "disk" ]]; then
-            [[ "${all[@]}" =~ ${devname}1 ]] && continue
-            if info_removable "${devname}"; then
-                removable[${#removable[*]}]="${devname}"
+        elif [[ "$info_type" == "disk" ]]; then
+            [[ "${all[@]}" =~ $devname ]] && continue
+            if info_removable "$devname"; then
+                removable[${#removable[*]}]="$devname"
             else
-                internal[${#internal[*]}]="${devname}"
+                internal[${#internal[*]}]="$devname"
             fi
-        elif [[ "${info_type}" == "rom" ]]; then
-            optical[${#optical[*]}]="${devname}"
+        elif [[ "$info_type" == "rom" ]]; then
+            optical[${#optical[*]}]="$devname"
         else
             continue
         fi
@@ -555,30 +555,30 @@ list_devices() {
 }
 
 submenu() {
-    check_device "${devname}" || return 1
+    check_device "$devname" || return 1
     local info_label= info_fstype= info_size=
-    info_label="$(info_fslabel "${devname}")"
-    if [[ -z "${info_label}" ]]; then
-        info_label="$(info_partlabel "${devname}")"
-        if [[ -z "${info_label}" ]]; then
+    info_label="$(info_fslabel "$devname")"
+    if [[ -z "$info_label" ]]; then
+        info_label="$(info_partlabel "$devname")"
+        if [[ -z "$info_label" ]]; then
             info_label="-"
         fi
     fi
-    info_fstype="$(info_fstype "${devname}")"
-    info_size="$(info_size "${devname}")"
+    info_fstype="$(info_fstype "$devname")"
+    info_size="$(info_size "$devname")"
     clear
     print_separator_device
-    printf '%s\n' "device    : ${devname}"
-    printf '%s\n' "label     : ${info_label}"
+    printf '%s\n' "device    : $devname"
+    printf '%s\n' "label     : $info_label"
     printf '%s' "mounted   : "
-    if info_mounted "${devname}"; then
+    if info_mounted "$devname"; then
         printf '%s\n' "${GREEN}yes${ALL_OFF}"
-        printf '%s\n' "mountpath : $(info_mountpath "${devname}")"
+        printf '%s\n' "mountpath : $(info_mountpath "$devname")"
     else
         printf '%s\n' "${RED}no${ALL_OFF}"
     fi
-    printf '%s\n' "fstype    : ${info_fstype}"
-    printf '%s\n' "size      : ${info_size}"
+    printf '%s\n' "fstype    : $info_fstype"
+    printf '%s\n' "size      : $info_size"
     if (( show_commands )); then
         printf '\n'
         print_submenu_commands
@@ -586,12 +586,12 @@ submenu() {
     printf '\n'
     print_separator
     read -r -e -p "Command: " action
-    case "${action}" in
-        "e") action_eject "${devname}";;
-        "i") action_info "${devname}";;
-        "m") action_mount "${devname}";;
-        "o") action_open "${devname}";;
-        "u") action_unmount "${devname}";;
+    case "$action" in
+        "e") action_eject "$devname";;
+        "i") action_info "$devname";;
+        "m") action_mount "$devname";;
+        "o") action_open "$devname";;
+        "u") action_unmount "$devname";;
         "b") return 1;;
         "r") return 0;;
         "q") exit;;
@@ -602,9 +602,9 @@ submenu() {
             printf '\n'
             msg "Mounting read-only ..."
             printf '\n'
-            mount_options="${default_mount_options}"" --read-only"
-            mount_command "${devname}"
-            mount_options="${default_mount_options}"
+            mount_options="$default_mount_options"" --read-only"
+            mount_command "$devname"
+            mount_options="$default_mount_options"
             enter_to_continue
             return 0;;
         "2")
@@ -612,9 +612,9 @@ submenu() {
             msg "Opening luks volume ..."
             printf '\n'
             if (( udisks == 0 )); then
-                cryptsetup open --type luks -v "${devname}" "luks-${devname##*/}"
+                cryptsetup open --type luks -v "$devname" "luks-${devname##*/}"
             else
-                udisksctl unlock --block-device "${devname}"
+                udisksctl unlock --block-device "$devname"
             fi
             enter_to_continue
             return 0;;
@@ -623,18 +623,18 @@ submenu() {
             msg "Closing luks volume ..."
             printf '\n'
             if (( udisks == 0 )); then
-                cryptsetup close --type luks "${devname}"
+                cryptsetup close --type luks "$devname"
             else
-                udisksctl lock --block-device "${devname}"
+                udisksctl lock --block-device "$devname"
             fi
             enter_to_continue
             return 0;;
         "4")
             if (( custom4_show )); then
                 printf '\n'
-                msg "Running custom command ${custom4_desc} ..."
+                msg "Running custom command $custom4_desc ..."
                 printf '\n'
-                custom4_command "${devname}"
+                custom4_command "$devname"
                 enter_to_continue
             else
                 invalid_command
@@ -643,9 +643,9 @@ submenu() {
         "5")
             if (( custom5_show )); then
                 printf '\n'
-                msg "Running custom command ${custom5_desc} ..."
+                msg "Running custom command $custom5_desc ..."
                 printf '\n'
-                custom5_command "${devname}"
+                custom5_command "$devname"
                 enter_to_continue
             else
                 invalid_command
@@ -654,9 +654,9 @@ submenu() {
         "6")
             if (( custom6_show )); then
                 printf '\n'
-                msg "Running custom command ${custom6_desc} ..."
+                msg "Running custom command $custom6_desc ..."
                 printf '\n'
-                custom6_command "${devname}"
+                custom6_command "$devname"
                 enter_to_continue
             else
                 invalid_command
@@ -672,8 +672,8 @@ select_action() {
     local -i number=
     print_separator
     read -r -e -p "Command: " action
-    if [[ "${action}" =~ ^[1-9] ]]; then
-        if [[ "${action}" =~ ^[1-9][0-9]*$ ]]; then
+    if [[ "$action" =~ ^[1-9] ]]; then
+        if [[ "$action" =~ ^[1-9][0-9]*$ ]]; then
             number="$(( action - 1 ))"
             if (( number >= device_number )); then
                 invalid_command
@@ -683,7 +683,7 @@ select_action() {
             while :; do
                 submenu || break
             done
-        elif [[ "${action}" =~ ^[1-9][0-9]*[eimou]$ ]]; then
+        elif [[ "$action" =~ ^[1-9][0-9]*[eimou]$ ]]; then
             number="$(( ${action%?} - 1 ))"
             letter="${action: -1}"
             if (( number >= device_number )); then
@@ -691,12 +691,12 @@ select_action() {
                 return 1
             fi
             devname="${listed[number]}"
-            case "${letter}" in
-                "e") action_eject "${devname}";;
-                "i") action_info "${devname}";;
-                "m") action_mount "${devname}";;
-                "o") action_open "${devname}";;
-                "u") action_unmount "${devname}";;
+            case "$letter" in
+                "e") action_eject "$devname";;
+                "i") action_info "$devname";;
+                "m") action_mount "$devname";;
+                "o") action_open "$devname";;
+                "u") action_unmount "$devname";;
                  *)  return 1;;
             esac
             return 0
@@ -705,7 +705,7 @@ select_action() {
             return 1
         fi
     else
-        case "${action}" in
+        case "$action" in
             "a")
                 printf '\n'
                 if (( ! ${#mounted[*]} )); then
@@ -714,12 +714,12 @@ select_action() {
                     return 1
                 fi
                 read -r -e -p "Unmount all devices [y/N]?: " unmount
-                if [[ "${unmount}" != "y" ]] && [[ "${unmount}" != "Y" ]]; then
+                if [[ "$unmount" != "y" ]] && [[ "$unmount" != "Y" ]]; then
                     return 0
                 fi
                 clear
                 for devname in ${mounted[@]}; do
-                    action_unmount "${devname}" || continue
+                    action_unmount "$devname" || continue
                 done
                 enter_to_contine
                 return 1;;
