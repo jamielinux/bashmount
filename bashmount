@@ -391,7 +391,7 @@ check_device() {
 
 action_eject() {
     check_device "$1" || return 1
-    info_mounted "$1" && action_unmount --no-prompt "$1"
+    info_mounted "$1" && action_unmount "$1"
     if ! info_mounted "$1"; then
         msg "Ejecting $1 ..."
         device_type=$(info_type "$1")
