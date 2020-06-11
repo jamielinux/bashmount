@@ -1,3 +1,21 @@
+bashmount 4.0.0 (2020-06-11)
+  - Cleanup code, improve style and readability
+  - Fix some typos
+  - Improve some of the error messages
+  - Make the UI wider (now 77 characters) to accommodate more information
+  - Display device size and mountpoint in main menu
+  - Improve column alignment
+  - Run `udisksctl --power-off` when ejecting, if udisksctl is available
+  - Tweak the default filemanager ($SHELL) to not exit afterwards
+  - Replace \x20 in device labels with a space character
+  - Handle LUKS devices better
+  - Change the separator from = to - for a lighter appearance
+  - Reduce times you have to press [enter] to continue (eg, skip if the
+    command was successful)
+  - Pressing [r] and [enter] refreshes the device list, but just pressing
+    [enter] by itself has always worked too. Now the help text prefers
+    [enter] to make it discoverable and reduce key presses.
+
 bashmount 3.2.0 (2014-04-19)
   - Shorten long device names and add padding so that device labels all
     align vertically, making things easier to read
