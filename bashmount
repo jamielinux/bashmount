@@ -4,6 +4,7 @@ set -u
 #=============================================================================#
 #        FILE: bashmount                                                      #
 #     VERSION: 3.2.0                                                          #
+#     WEBSITE: https://github.com/jamielinux/bashmount                        #
 # DESCRIPTION: bashmount is a menu-driven bash script that can use different  #
 #              backends to easily mount, unmount or eject removable devices   #
 #              without dependencies on any GUI. An extensive configuration    #
