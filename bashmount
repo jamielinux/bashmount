@@ -476,7 +476,6 @@ action_open() {
     fi
     msg "Opening $1 ..."
     filemanager "$(info_mountpath "$1")"
-    enter_to_continue
 }
 
 action_unmount() {
