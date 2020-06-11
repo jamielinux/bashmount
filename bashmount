@@ -159,6 +159,7 @@ error() {
 }
 
 print_commands() {
+    printf '\n\n'
     print_separator_commands
     printf '%s' " ${BLUE}e${ALL_OFF}: eject"
     printf '%s' "        ${BLUE}i${ALL_OFF}: info"
