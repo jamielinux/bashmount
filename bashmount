@@ -40,10 +40,7 @@ fi
 declare -ri EXIT_CMDNOTFOUND=127
 declare -ri EXIT_CONFIG=78
 
-#-------------------------------------#
-#           CONFIGURATION             #
-#-------------------------------------#
-# {{{
+# {{{ ··· CONFIGURATION
 # Make sure that user defined options will not interfere with grep.
 unset GREP_OPTIONS
 
@@ -128,10 +125,7 @@ fi
 declare mount_options="$default_mount_options"
 # }}}
 
-#-------------------------------------#
-#         PRINTING FUNCTIONS          #
-#-------------------------------------#
-# {{{
+# {{{ ··· PRINTING FUNCTIONS
 unset ALL_OFF BOLD BLUE GREEN RED
 if (( colourize )); then
     if tput setaf 0 >/dev/null 2>&1; then
@@ -153,9 +147,17 @@ fi
 msg() {
     printf '\n%s\n\n' "${GREEN}==>${ALL_OFF}${BOLD} ${*}${ALL_OFF}" >&2
 }
-
 error() {
     printf '\n%s\n\n' "${RED}==>${ALL_OFF}${BOLD} ERROR: ${*}${ALL_OFF}" >&2
+}
+enter_to_continue() {
+    printf '\n'
+    read -r -e -p "Press [${BLUE}enter${ALL_OFF}] to continue: "
+}
+invalid_command() {
+    printf '\n'
+    error "Invalid command. See the help menu."
+    enter_to_continue
 }
 
 print_commands() {
@@ -178,23 +180,18 @@ print_submenu_commands() {
     print_separator_commands
     printf '%s' " ${BLUE}e${ALL_OFF}: eject"
     printf '%s' "                ${BLUE}i${ALL_OFF}: info"
-
     if info_mounted "$devname"; then
         printf '%s' "            ${BLUE}u${ALL_OFF}: unmount"
     else
         printf '%s' "            ${BLUE}m${ALL_OFF}: mount  "
     fi
-
     printf '%s' "            ${BLUE}o${ALL_OFF}: open"
     printf '\n\n'
-
     printf '%s' " ${BLUE}[Enter]${ALL_OFF}: refresh"
     printf '%s' "        ${BLUE}b${ALL_OFF}: back"
     printf '%s' "            ${BLUE}q${ALL_OFF}: quit"
     printf '%s' "               ${BLUE}?${ALL_OFF}: help"
-    printf '\n'
-
-    printf '\n'
+    printf '\n\n'
     printf '%s' " ${BLUE}1${ALL_OFF}: extended info"
     printf '%s' "        ${BLUE}2${ALL_OFF}: luksOpen"
     printf '%s' "        ${BLUE}3${ALL_OFF}: luksClose"
@@ -202,32 +199,14 @@ print_submenu_commands() {
 
     if (( custom4_show )) || (( custom5_show )) || (( custom6_show )); then
         printf '\n'
-
-        if (( custom4_show )) && [[ -n "$custom4_desc" ]]; then
-            printf '%s' "${BLUE}4${ALL_OFF}: $custom4_desc"
-        fi
-
-        if (( custom5_show )) && [[ -n "$custom5_desc" ]]; then
-            printf '%s' "   ${BLUE}5${ALL_OFF}: $custom5_desc"
-        fi
-
-        if (( custom6_show )) && [[ -n "$custom6_desc" ]]; then
-            printf '%s' "   ${BLUE}6${ALL_OFF}: $custom6_desc"
-        fi
-
+        (( custom4_show )) && [[ -n "$custom4_desc" ]] \
+            && printf '%s' "${BLUE}4${ALL_OFF}: $custom4_desc"
+        (( custom5_show )) && [[ -n "$custom5_desc" ]] \
+            && printf '%s' "   ${BLUE}5${ALL_OFF}: $custom5_desc"
+        (( custom6_show )) && [[ -n "$custom6_desc" ]] \
+            && printf '%s' "   ${BLUE}6${ALL_OFF}: $custom6_desc"
         printf '\n'
     fi
-}
-
-enter_to_continue() {
-    printf '\n'
-    read -r -e -p "Press [${BLUE}enter${ALL_OFF}] to continue: "
-}
-
-invalid_command() {
-    printf '\n'
-    error "Invalid command. See the help menu."
-    enter_to_continue
 }
 
 print_separator() {
@@ -332,23 +311,17 @@ print_device() {
     fi
 
     printf '%s' " ${devname_short}:"
-
-    # Add padding for columns to line up.
     for (( i=padding_name; i>${#devname_short}; i-- )); do
         printf '%s' " "
     done
 
     printf '%s' " $label_short"
-
-    # Add padding for columns to line up.
     for (( i=padding_label; i>${#label_short}; i-- )); do
         printf '%s' " "
     done
 
     size="$(info_size "$devname")"
     printf '%s' " $size"
-
-    # Add padding for columns to line up.
     if (( ${#size} < padding_size )); then
         for (( i=padding_size; i>${#size}; i-- )); do
             printf '%s' " "
@@ -362,13 +335,9 @@ print_device() {
     fi
     printf '\n'
 }
-
 # }}}
 
-#-------------------------------------#
-#       INFORMATION RETRIEVAL         #
-#-------------------------------------#
-# {{{
+# {{{ ··· INFORMATION RETRIEVAL
 # Returns 0 if the device is registered as removable device in the kernel,
 # otherwise it returns 1.
 info_removable() {
@@ -408,10 +377,7 @@ info_used() {
 }
 # }}}
 
-#-------------------------------------#
-#        DEVICE MANIPULATION          #
-#-------------------------------------#
-# {{{
+# {{{ ··· DEVICE MANIPULATION
 check_device() {
     if [[ ! -b "$1" ]]; then
         error "$1 is no longer available."
@@ -494,10 +460,7 @@ action_unmount() {
 }
 # }}}
 
-#-------------------------------------#
-#           MENU FUNCTIONS            #
-#-------------------------------------#
-# {{{
+# {{{ ··· MENU FUNCTIONS
 list_devices() {
     all=()          # all devices
     listed=()       # all devices that are shown (ie, not hidden)
@@ -548,6 +511,7 @@ list_devices() {
         fi
     done
 
+    clear
     # List internal media.
     if (( show_internal )) && (( ${#internal[*]} )); then
         print_separator_internal
@@ -755,7 +719,6 @@ declare -a listed=()
 declare -a mounted=()
 
 while true; do
-    clear
     list_devices
     (( show_commands )) && print_commands
     select_action
