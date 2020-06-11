@@ -424,6 +424,7 @@ action_mount() {
         if (( retval == 0 )); then
             msg "$1 mounted successfully."
             (( run_post_mount )) && post_mount "$1"
+            sleep 0.1s
         else
             error "$1 could not be mounted."
         fi
@@ -450,6 +451,7 @@ action_unmount() {
         if (( retval == 0 )); then
             msg "$1 unmounted successfully."
             (( run_post_unmount )) && post_unmount "$1"
+            sleep 0.1s
         else
             error "$1 could not be unmounted."
         fi
