@@ -596,6 +596,7 @@ submenu() {
     local fstype="$(info_fstype "$devname")"
     local size="$(info_size "$devname")"
     local used="$(info_used "$devname")"
+    local uuid="$(info_uuid "$devname")"
 
     local -i mounted=0
     info_mounted "$devname" && mounted=1
@@ -613,6 +614,7 @@ submenu() {
         printf '%s\n' "${RED}no${ALL_OFF}"
     fi
     printf '%s\n' "fstype    : $fstype"
+    printf '%s\n' "uuid      : $uuid"
     printf '%s\n' "size      : $size"
     (( mounted )) && printf '%s\n' "used      : $used"
     if (( show_commands == 1 )); then
