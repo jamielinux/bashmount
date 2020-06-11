@@ -108,7 +108,11 @@ if [[ -f "$CONFIG_FILE" ]]; then
 fi
 
 if [[ "$udisks" == "auto" ]]; then
-    type -p udisksctl >/dev/null 2>&1 && udisks=1 || udisks=0
+    if type -p udisksctl >/dev/null 2>&1; then
+        udisks=1
+    else
+        udisks=0
+    fi
 elif  (( udisks == 1 )); then
     if ! type -p udisksctl >/dev/null 2>&1; then
         printf '%s\n' "bashmount: 'udisksctl': command not found"
