@@ -217,42 +217,42 @@ UTF8_BRACKET_L='\xE2\x94\xA5'
 UTF8_BRACKET_R='\xE2\x94\x9D'
 
 if (( pretty )); then
-    utf_sed_expr="y/]=[/${UTF8_BRACKET_R}${UTF8_LINE}${UTF8_BRACKET_L}/"
     NOTE_ARROW="${BOLD}\xE2\x80\xA3${ALL_OFF}"
+    utf_sed_expr="y/]-[/${UTF8_BRACKET_R}${UTF8_LINE}${UTF8_BRACKET_L}/"
 else
     utf_sed_expr=''
     NOTE_ARROW="==>"
 fi
 
-print_separator() {
+pretty_print() {
     printf "${BOLD}"
     printf "%s\n\n" "${1}" | sed -e "${utf_sed_expr}"
     printf "${ALL_OFF}"
 }
 
-print_separator_dumb() {
-    print_separator '============================================================================='
+print_separator() {
+    pretty_print '-----------------------------------------------------------------------------'
 }
 print_separator_commands() {
-    print_separator '================================[ Commands ]================================='
+    pretty_print '--------------------------------[ Commands ]---------------------------------'
 }
 print_separator_device() {
-    print_separator '===============================[ Device Menu ]==============================='
+    pretty_print '-------------------------------[ Device Menu ]-------------------------------'
 }
 print_separator_optical() {
-    print_separator '==============================[ Optical Media ]=============================='
+    pretty_print '------------------------------[ Optical Media ]------------------------------'
 }
 print_separator_removable() {
-    print_separator '=============================[ Removable Media ]============================='
+    pretty_print '-----------------------------[ Removable Media ]-----------------------------'
 }
 print_separator_internal() {
-    print_separator '=============================[ Internal Media ]=============================='
+    pretty_print '-----------------------------[ Internal Media ]------------------------------'
 }
 
 print_help() {
     clear
     print_commands
-    print_separator_dumb
+    print_separator
     printf '%b' "  ${GREEN}${NOTE_ARROW}${ALL_OFF}  "
     printf '%s' "${BOLD}To mount the first device, enter ${ALL_OFF}"
     printf '%s' "${BLUE}1m${ALL_OFF}${BOLD}.${ALL_OFF}"
@@ -276,7 +276,7 @@ print_help() {
     printf '%s' "${BLUE}?${ALL_OFF} "
     printf '%s' "${BOLD}do not require a number.${ALL_OFF}"
     printf '\n\n'
-    print_separator_dumb
+    print_separator
     enter_to_continue
 }
 
@@ -284,7 +284,7 @@ print_help_sub() {
     clear
     print_submenu_commands
     printf '\n'
-    print_separator_dumb
+    print_separator
     printf '%b' "  ${GREEN}${NOTE_ARROW}${ALL_OFF}  "
     printf '%s' "${BOLD}To perform a command, enter a character and press ${ALL_OFF}"
     printf '%s' "${BLUE}[Enter]${ALL_OFF}${BOLD}.${ALL_OFF}"
@@ -294,7 +294,7 @@ print_help_sub() {
     printf '%s' "${BLUE}m${ALL_OFF} and press ${BLUE}[Enter]${ALL_OFF}"
     printf '%s' "${BOLD}.${ALL_OFF}"
     printf '\n\n'
-    print_separator_dumb
+    print_separator
     enter_to_continue
 }
 
@@ -658,7 +658,7 @@ submenu() {
         print_submenu_commands
     fi
     printf '\n'
-    print_separator_dumb
+    print_separator
 
     # Receive user input.
     local -i retval
@@ -738,7 +738,7 @@ submenu() {
 select_action() {
     local devname
     local letter
-    print_separator_dumb
+    print_separator
     read -r -e -p "Command: " action
     if [[ "$action" =~ ^[1-9] ]]; then
         if [[ "$action" =~ ^[1-9][0-9]*$ ]]; then
