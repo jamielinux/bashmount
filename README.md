@@ -10,7 +10,7 @@
 1. Install the
    [script](https://raw.githubusercontent.com/jamielinux/bashmount/master/bashmount)
    somewhere in your path (eg, `/usr/bin/bashmount`).
-2. Install the
+2. _Optional:_ Install the
    [configuration file](https://raw.githubusercontent.com/jamielinux/bashmount/master/bashmount.conf)
    at either `/etc/bashmount.conf` or `$HOME/.config/bashmount/config`.
 
@@ -43,7 +43,8 @@ things you can do.
 Have a look at the example
 [configuration file](https://github.com/jamielinux/bashmount/blob/master/bashmount.conf).
 
-- Open your desired file manager at the mountpoint of a device.
+- Open your desired file manager at the mountpoint of a device. (The default is
+  to open in your terminal.)
 - Hide certain devices from the list.
 - Configure custom commands to run on removable devices.
 - Automatically run custom commands after a mount or unmount.
