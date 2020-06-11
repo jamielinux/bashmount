@@ -444,10 +444,11 @@ action_info() {
 }
 
 action_mount() {
-    local -i retval=0
     check_device "$1" || return 1
+    local -i retval=0
     if info_mounted "$1"; then
         error "$1 is already mounted."
+        retval=1
     else
         mount_command "$1"
         retval=$?
@@ -458,7 +459,7 @@ action_mount() {
             error "$1 could not be mounted."
         fi
     fi
-    enter_to_continue
+    (( retval != 0 )) && enter_to_continue
     return $retval
 }
 
@@ -472,10 +473,12 @@ action_open() {
 }
 
 action_unmount() {
-    local -i no_prompt=0
-    [[ "$1" == "--no-prompt" ]] && no_prompt=1 && shift 1
+    check_device "$1" || return 1
+    local -i retval=0
     if info_mounted "$1"; then
-        if unmount_command "$1"; then
+        unmount_command "$1"
+        retval=$?
+        if (( retval == 0 )); then
             msg "$1 unmounted successfully."
             (( run_post_unmount )) && post_unmount "$1"
         else
@@ -483,8 +486,10 @@ action_unmount() {
         fi
     else
         error "$1 is not mounted."
+        retval=1
     fi
-    (( !no_prompt )) && enter_to_continue
+    (( retval != 0 )) && enter_to_continue
+    return $retval
 }
 # }}}
 
@@ -611,11 +616,11 @@ submenu() {
     # Receive user input.
     read -r -e -p "Command: " action
     case "$action" in
-        "e") action_eject "$devname";;
-        "i") action_info "$devname";;
-        "m") action_mount "$devname";;
-        "o") action_open "$devname";;
-        "u") action_unmount "$devname";;
+        "e") action_eject "$devname" || true;;
+        "i") action_info "$devname" || true;;
+        "m") action_mount "$devname" || true;;
+        "o") action_open "$devname" || true;;
+        "u") action_unmount "$devname" || true;;
         "b") return 1;;
         ""|"r") return 0;;
         "q") exit;;
