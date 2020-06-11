@@ -5,9 +5,9 @@
 #     VERSION: 3.2.0                                                          #
 # DESCRIPTION: bashmount is a menu-driven bash script that can use different  #
 #              backends to easily mount, unmount or eject removable devices   #
-#              without dependencies on udisks or any GUI. An extensive        #
-#              configuration file allows many aspects of the script to be     #
-#              modified and custom commands to be run on devices.             #
+#              without dependencies on any GUI. An extensive configuration    #
+#              file allows many aspects of the script to be modified and      #
+#              custom commands to be run on devices.                          #
 #     LICENSE: GPLv2                                                          #
 #     AUTHORS: Jamie Nguyen <j@jamielinux.com>                                #
 #              Lukas B.                                                       #
