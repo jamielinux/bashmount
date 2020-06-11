@@ -59,6 +59,9 @@ declare -i colourize=1
 declare -i custom4_show=0
 declare -i custom5_show=0
 declare -i custom6_show=0
+declare custom4_desc=""
+declare custom5_desc=""
+declare custom6_desc=""
 declare -i run_post_mount=0
 declare -i run_post_unmount=0
 declare -a blacklist=()
@@ -154,11 +157,11 @@ if (( colourize )); then
 fi
 
 msg() {
-    printf '\n%s\n\n' "${GREEN}==>${ALL_OFF}${BOLD} ${@}${ALL_OFF}" >&2
+    printf '\n%s\n\n' "${GREEN}==>${ALL_OFF}${BOLD} ${*}${ALL_OFF}" >&2
 }
 
 error() {
-    printf '\n%s\n\n' "${RED}==>${ALL_OFF}${BOLD} ERROR: ${@}${ALL_OFF}" >&2
+    printf '\n%s\n\n' "${RED}==>${ALL_OFF}${BOLD} ERROR: ${*}${ALL_OFF}" >&2
 }
 
 print_commands() {
@@ -223,7 +226,7 @@ print_submenu_commands() {
 
 enter_to_continue() {
     printf '\n'
-    read -r -e -p "Press [${BLUE}enter${ALL_OFF}] to continue: " null
+    read -r -e -p "Press [${BLUE}enter${ALL_OFF}] to continue: "
 }
 
 invalid_command() {
@@ -498,17 +501,24 @@ action_unmount() {
 #-------------------------------------#
 # {{{
 list_devices() {
-    local -a all=() removable=() internal=() optical=()
-    all=( $(lsblk -plno NAME) )  # all devices
-    listed=()                    # all devices that are shown (ie, not hidden)
-    mounted=()                   # all devices that are shown and mounted
+    all=()          # all devices
+    listed=()       # all devices that are shown (ie, not hidden)
+    mounted=()      # all devices that are shown and mounted
     device_number=0
 
-    for devname in ${all[@]}; do
+    local -a removable=()
+    local -a internal=()
+    local -a optical=()
+
+    while IFS='' read -r device; do
+        all+=( "$device" )
+    done < <(lsblk -plno NAME)
+
+    for devname in "${all[@]}"; do
         local device_type=
 
         # Hide blacklisted devices.
-        for string in ${blacklist[@]}; do
+        for string in "${blacklist[@]}"; do
             lsblk -dPno NAME,TYPE,FSTYPE,LABEL,MOUNTPOINT,PARTLABEL "$devname" \
                 | grep -E "$string" >/dev/null 2>&1
             (( $? )) || continue 2
@@ -527,7 +537,7 @@ list_devices() {
         # (eg, internal storage on some portable media devices) then it should
         # be visible.
         elif [[ "$device_type" == "disk" ]]; then
-            [[ "${all[@]}" =~ $devname ]] && continue
+            [[ "${all[*]}" =~ $devname ]] && continue
             if info_removable "$devname"; then
                 removable[${#removable[*]}]="$devname"
             else
@@ -543,7 +553,7 @@ list_devices() {
     # List internal media.
     if (( show_internal )) && (( ${#internal[*]} )); then
         print_separator_internal
-        for devname in ${internal[@]}; do
+        for devname in "${internal[@]}"; do
             print_device
         done
         printf '\n'
@@ -551,7 +561,7 @@ list_devices() {
     # List removable media.
     if (( show_removable )) && (( ${#removable[*]} )); then
         print_separator_removable
-        for devname in ${removable[@]}; do
+        for devname in "${removable[@]}"; do
             print_device
         done
         printf '\n'
@@ -559,7 +569,7 @@ list_devices() {
     # List optical media.
     if (( show_optical )) && (( ${#optical[*]} )); then
         print_separator_optical
-        for devname in ${optical[@]}; do
+        for devname in "${optical[@]}"; do
             print_device optical
         done
         printf '\n'
@@ -571,7 +581,9 @@ submenu() {
     # Make sure device is still valid.
     check_device "$devname" || return 1
 
-    local label= fstype= size=
+    local label
+    local fstype
+    local size
 
     # Try to use a useful label to identify the device.
     label="$(info_fslabel "$devname")"
@@ -668,14 +680,14 @@ submenu() {
 }
 
 select_action() {
-    local devname= letter=
-    local -i number=
+    local devname
+    local letter
     print_separator
     read -r -e -p "Command: " action
     if [[ "$action" =~ ^[1-9] ]]; then
         if [[ "$action" =~ ^[1-9][0-9]*$ ]]; then
             # Zero-based numbering for array elements, so subtract one.
-            number="$(( action - 1 ))"
+            local number="$(( action - 1 ))"
             if (( number >= device_number )); then
                 invalid_command
                 return 1
@@ -686,7 +698,7 @@ select_action() {
             done
         elif [[ "$action" =~ ^[1-9][0-9]*[eimou]$ ]]; then
             # Zero-based numbering for array elements, so subtract one.
-            number="$(( ${action%?} - 1 ))"
+            local number="$(( ${action%?} - 1 ))"
 
             if (( number >= device_number )); then
                 invalid_command
@@ -720,7 +732,7 @@ select_action() {
                 read -r -e -p "Unmount all devices [y/N]?: " unmount
                 [[ "$unmount" != "y" ]] && [[ "$unmount" != "Y" ]] && return 0
                 clear
-                for devname in ${mounted[@]}; do
+                for devname in "${mounted[@]}"; do
                     action_unmount "$devname" || continue
                 done
                 enter_to_continue
@@ -734,9 +746,10 @@ select_action() {
 }
 # }}}
 
-declare -i device_number=
-declare -a mounted=()
+declare -i device_number=0
+declare -a all=()
 declare -a listed=()
+declare -a mounted=()
 
 while true; do
     clear
