@@ -309,16 +309,16 @@ print_device() {
     local -i padding_label=21
     local -i padding_size=6
 
-    info_label="$(info_fslabel "$devname")"
-    if [[ -z "$info_label" ]]; then
+    label="$(info_fslabel "$devname")"
+    if [[ -z "$label" ]]; then
         if [[ "$1" == "optical" ]]; then
-            info_label="$(lsblk -dno MODEL "$devname")"
+            label="$(lsblk -dno MODEL "$devname")"
         else
-            info_label="$(info_partlabel "$devname")"
+            label="$(info_partlabel "$devname")"
         fi
-        [[ -z "$info_label" ]] && info_label="No label"
+        [[ -z "$label" ]] && label="No label"
     fi
-    info_label="$(printf '%s' "$info_label" | sed -e 's/\\x20/ /g')"
+    label="$(printf '%s' "$label" | sed -e 's/\\x20/ /g')"
 
     listed[device_number]="$devname"
     (( device_number++ ))
@@ -326,14 +326,14 @@ print_device() {
     printf '%s' " ${BLUE}${device_number})${ALL_OFF}"
 
     devname_short="${devname##*/}"
-    info_label_short="$info_label"
+    label_short="$label"
     if (( !show_full_device_names )); then
         if (( ${#devname_short} > padding_name )); then
             len=$(( padding_name - 4 ))
             devname_short="${devname_short:0:len}..."
-        elif (( ${#info_label} > padding_label )); then
+        elif (( ${#label} > padding_label )); then
             label_len=$(( padding_label - 4 ))
-            info_label_short="${info_label:0:label_len}..."
+            label_short="${label:0:label_len}..."
         fi
     fi
 
@@ -344,10 +344,10 @@ print_device() {
         printf '%s' " "
     done
 
-    printf '%s' " $info_label_short"
+    printf '%s' " $label_short"
 
     # Add padding for columns to line up.
-    for (( i=padding_label; i>${#info_label_short}; i--)); do
+    for (( i=padding_label; i>${#label_short}; i--)); do
         printf '%s' " "
     done
 
@@ -435,8 +435,8 @@ action_eject() {
     info_mounted "$1" && action_unmount "$1"
     if ! info_mounted "$1"; then
         msg "Ejecting $1 ..."
-        info_type=$(info_type "$1")
-        if (( udisks )) && [[ "$info_type" != "rom" ]]; then
+        device_type=$(info_type "$1")
+        if (( udisks )) && [[ "$device_type" != "rom" ]]; then
             udisksctl power-off -b "$1"
         else
             sudo eject "$1"
@@ -509,7 +509,7 @@ list_devices() {
     device_number=0
 
     for devname in ${all[@]}; do
-        local info_type=
+        local device_type=
 
         # Hide blacklisted devices.
         for string in ${blacklist[@]}; do
@@ -518,10 +518,10 @@ list_devices() {
             (( $? )) || continue 2
         done
 
-        info_type=$(info_type "$devname")
+        device_type=$(info_type "$devname")
 
         # Sort devices into arrays removable, internal, and optical.
-        if [[ "$info_type" == "part" || "$info_type" == "crypt" ]]; then
+        if [[ "$device_type" == "part" || "$device_type" == "crypt" ]]; then
             if info_removable "$devname"; then
                 removable[${#removable[*]}]="$devname"
             else
@@ -530,14 +530,14 @@ list_devices() {
         # Normally we don't want to see a "disk", but if it has no partitions
         # (eg, internal storage on some portable media devices) then it should
         # be visible.
-        elif [[ "$info_type" == "disk" ]]; then
+        elif [[ "$device_type" == "disk" ]]; then
             [[ "${all[@]}" =~ $devname ]] && continue
             if info_removable "$devname"; then
                 removable[${#removable[*]}]="$devname"
             else
                 internal[${#internal[*]}]="$devname"
             fi
-        elif [[ "$info_type" == "rom" ]]; then
+        elif [[ "$device_type" == "rom" ]]; then
             optical[${#optical[*]}]="$devname"
         else
             continue
@@ -575,21 +575,21 @@ submenu() {
     # Make sure device is still valid.
     check_device "$devname" || return 1
 
-    local info_label= info_fstype= info_size=
+    local label= fstype= size=
 
     # Try to use a useful label to identify the device.
-    info_label="$(info_fslabel "$devname")"
-    [[ -z "$info_label" ]] && info_label="$(info_partlabel "$devname")"
-    [[ -z "$info_label" ]] && info_label="-"
+    label="$(info_fslabel "$devname")"
+    [[ -z "$label" ]] && label="$(info_partlabel "$devname")"
+    [[ -z "$label" ]] && label="-"
 
-    info_fstype="$(info_fstype "$devname")"
-    info_size="$(info_size "$devname")"
+    fstype="$(info_fstype "$devname")"
+    size="$(info_size "$devname")"
 
     # Display the user interface.
     clear
     print_separator_device
     printf '%s\n' "device    : $devname"
-    printf '%s\n' "label     : $info_label"
+    printf '%s\n' "label     : $label"
     printf '%s' "mounted   : "
     if info_mounted "$devname"; then
         printf '%s\n' "${GREEN}yes${ALL_OFF}"
@@ -597,8 +597,8 @@ submenu() {
     else
         printf '%s\n' "${RED}no${ALL_OFF}"
     fi
-    printf '%s\n' "fstype    : $info_fstype"
-    printf '%s\n' "size      : $info_size"
+    printf '%s\n' "fstype    : $fstype"
+    printf '%s\n' "size      : $size"
     if (( show_commands == 1 )); then
         printf '\n'
         print_submenu_commands
