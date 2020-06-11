@@ -296,7 +296,7 @@ print_help_sub() {
     enter_to_continue
 }
 
-print_device_name() {
+print_device() {
     local -i padding_name=16
     local -i padding_label=16
 
@@ -531,7 +531,7 @@ list_devices() {
     if (( show_internal )) && (( ${#internal[*]} )); then
         print_separator_internal
         for devname in ${internal[@]}; do
-            print_device_name
+            print_device
         done
         printf '\n'
     fi
@@ -539,7 +539,7 @@ list_devices() {
     if (( show_removable )) && (( ${#removable[*]} )); then
         print_separator_removable
         for devname in ${removable[@]}; do
-            print_device_name
+            print_device
         done
         printf '\n'
     fi
@@ -547,7 +547,7 @@ list_devices() {
     if (( show_optical )) && (( ${#optical[*]} )); then
         print_separator_optical
         for devname in ${optical[@]}; do
-            print_device_name optical
+            print_device optical
         done
         printf '\n'
     fi
