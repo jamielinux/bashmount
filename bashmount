@@ -3,7 +3,7 @@ set -u
 
 #=============================================================================#
 #        FILE: bashmount                                                      #
-#     VERSION: 4.0.1                                                          #
+#     VERSION: 4.1.0                                                          #
 #     WEBSITE: https://github.com/jamielinux/bashmount                        #
 # DESCRIPTION: bashmount is a menu-driven bash script that can use different  #
 #              backends to easily mount, unmount or eject removable devices   #
@@ -31,7 +31,7 @@ set -u
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 
-declare -r VERSION="4.0.1"
+declare -r VERSION="4.1.0"
 
 if (( $# > 0 )) && [[ "$1" == "-v" || "$1" == "--version" ]]; then
     printf '%s\n' "$VERSION"
