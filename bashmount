@@ -117,14 +117,12 @@ if [[ -f "$CONFIG_FILE" ]]; then
     fi
 fi
 
-if [[ "$udisks" == "auto" ]]; then
+if [[ "$udisks" != 0 ]]; then
     if type -p udisksctl >/dev/null 2>&1; then
-        udisks=1
-    else
+        [[ "$udisks" == "auto" ]] && udisks=1
+    elif [[ "$udisks" == "auto" ]]; then
         udisks=0
-    fi
-elif (( udisks == 1 )); then
-    if ! type -p udisksctl >/dev/null 2>&1; then
+    else
         printf '%s\n' "bashmount: 'udisksctl': command not found"
         exit $EXIT_CMDNOTFOUND
     fi
