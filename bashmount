@@ -113,7 +113,7 @@ if [[ "$udisks" == "auto" ]]; then
     else
         udisks=0
     fi
-elif  (( udisks == 1 )); then
+elif (( udisks == 1 )); then
     if ! type -p udisksctl >/dev/null 2>&1; then
         printf '%s\n' "bashmount: 'udisksctl': command not found"
         exit $EX_CMDNOTFOUND
@@ -485,13 +485,16 @@ list_devices() {
 
     for devname in ${all[@]}; do
         local info_type=
+
         # Hide blacklisted devices.
         for string in ${blacklist[@]}; do
             lsblk -dPno NAME,TYPE,FSTYPE,LABEL,MOUNTPOINT,PARTLABEL "$devname" \
                 | grep -E "$string" >/dev/null 2>&1
             (( $? )) || continue 2
         done
+
         info_type=$(info_type "$devname")
+
         # Sort devices into arrays removable, internal, and optical.
         if [[ "$info_type" == "part" || "$info_type" == "crypt" ]]; then
             if info_removable "$devname"; then
@@ -515,7 +518,7 @@ list_devices() {
             continue
         fi
     done
-    # Print output.
+
     # List internal media.
     if (( show_internal )) && (( ${#internal[*]} )); then
         print_separator_internal
@@ -589,8 +592,7 @@ submenu() {
         "b") return 1;;
         "r") return 0;;
         "q") exit;;
-        "?")
-            print_help_sub; return 0;;
+        "?") print_help_sub; return 0;;
         "1")
             msg "Mounting read-only ..."
             mount_options="$default_mount_options --read-only"
@@ -643,8 +645,7 @@ submenu() {
                 invalid_command
             fi
             return 0;;
-         *) invalid_command
-            return 0;;
+         *) invalid_command; return 0;;
     esac
 }
 
@@ -665,13 +666,16 @@ select_action() {
                 submenu || break
             done
         elif [[ "$action" =~ ^[1-9][0-9]*[eimou]$ ]]; then
+            # Zero-based numbering for array elements, so subtract one.
             number="$(( ${action%?} - 1 ))"
-            letter="${action: -1}"
+
             if (( number >= device_number )); then
                 invalid_command
                 return 1
             fi
             devname="${listed[number]}"
+
+            letter="${action: -1}"
             case "$letter" in
                 "e") action_eject "$devname";;
                 "i") action_info "$devname";;
@@ -695,25 +699,17 @@ select_action() {
                 fi
                 printf '\n'
                 read -r -e -p "Unmount all devices [y/N]?: " unmount
-                if [[ "$unmount" != "y" ]] && [[ "$unmount" != "Y" ]]; then
-                    return 0
-                fi
+                [[ "$unmount" != "y" ]] && [[ "$unmount" != "Y" ]] && return 0
                 clear
                 for devname in ${mounted[@]}; do
                     action_unmount "$devname" || continue
                 done
                 enter_to_contine
                 return 1;;
-            "r"|"")
-                return 0;;
-            "q"|"b")
-                exit 0;;
-            "?")
-                print_help
-                return 0;;
-            *)
-                invalid_command
-                return 1;;
+            "r"|"") return 0;;
+            "q"|"b") exit 0;;
+            "?") print_help; return 0;;
+            *) invalid_command; return 1;;
         esac
     fi
 }
