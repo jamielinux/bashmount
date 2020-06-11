@@ -85,7 +85,7 @@ unmount_command() {
 }
 
 filemanager() {
-    cd "$1" && "$SHELL"
+    ( cd "$1" && "$SHELL" )
 }
 
 post_mount() {
