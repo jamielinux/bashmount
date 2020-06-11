@@ -643,7 +643,7 @@ submenu() {
 
     # Receive user input.
     local -i retval
-    read -r -e -N 1 -p "Command: " action
+    read -r -e -p "Command: " action || printf "\n" && exit 0
     case "$action" in
         "e") action_eject "$devname" || true;;
         "i") action_info "$devname" || true;;
@@ -720,7 +720,7 @@ select_action() {
     local devname
     local letter
     print_separator
-    read -r -e -p "Command: " action
+    read -r -e -p "Command: " action || printf "\n" && exit 0
     if [[ "$action" =~ ^[1-9] ]]; then
         if [[ "$action" =~ ^[1-9][0-9]*$ ]]; then
             # Zero-based numbering for array elements, so subtract one.
