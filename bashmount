@@ -334,12 +334,14 @@ print_device() {
     fi
 
     if [[ "$fstype" == "crypto_LUKS" ]]; then
-        local -i unlocked=0
         local uuid="$(info_uuid "$devname")"
-        for dev in "${all[@]}"; do
-            [[ "$dev" == "/dev/mapper/luks-$uuid" ]] && unlocked=1 && break
-        done
-        (( unlocked )) && printf '%s' " ${GREEN}decrypted: luks-${uuid:0:4}...${ALL_OFF}"
+        if [[ -n "$uuid" ]]; then
+            for dev in "${all[@]}"; do
+                if [[ "$dev" == "/dev/mapper/luks-$uuid" ]]; then
+                    printf '%s' " ${GREEN}decrypted: luks-${uuid:0:4}...${ALL_OFF}"
+                fi
+            done
+        fi
     elif info_mounted "$devname"; then
         mountpath="$(info_mountpath "$devname")"
         printf '%s' " ${GREEN}[$mountpath]${ALL_OFF}"
@@ -606,12 +608,27 @@ submenu() {
     print_separator_device
     printf '%s\n' " device    : $devname"
     printf '%s\n' " label     : $label"
-    printf '%s' " mounted   : "
-    if (( mounted )); then
-        printf '%s\n' "${GREEN}yes${ALL_OFF}"
-        printf '%s\n' " mountpath : $(info_mountpath "$devname")"
+    if [[ "$fstype" == "crypto_LUKS" ]]; then
+        printf '%s' " status    : "
+        local -i unlocked=0
+        if [[ -n "$uuid" ]]; then
+            for dev in "${all[@]}"; do
+                if [[ "$dev" == "/dev/mapper/luks-$uuid" ]]; then
+                    printf '%s\n' "${GREEN}decrypted [luks-${uuid:0:4}...]${ALL_OFF}"
+                    unlocked=1
+                    break
+                fi
+            done
+        fi
+        (( !unlocked )) && printf '%s\n' "encrypted"
     else
-        printf '%s\n' "${RED}no${ALL_OFF}"
+        printf '%s' " mounted   : "
+        if (( mounted )); then
+            printf '%s\n' "${GREEN}yes${ALL_OFF}"
+            printf '%s\n' " mountpath : $(info_mountpath "$devname")"
+        else
+            printf '%s\n' "${RED}no${ALL_OFF}"
+        fi
     fi
     printf '%s\n' " fstype    : $fstype"
     printf '%s\n' " uuid      : $uuid"
@@ -625,6 +642,7 @@ submenu() {
     print_separator
 
     # Receive user input.
+    local -i retval
     read -r -e -p "Command: " action
     case "$action" in
         "e") action_eject "$devname" || true;;
@@ -639,22 +657,34 @@ submenu() {
         "1") sudo sh -c "cryptsetup luksDump '$devname' | less"; return 0;;
         "2")
             msg "Opening luks volume ..."
+            retval=0
             if (( udisks )); then
                 udisksctl unlock --block-device "$devname"
+                retval=$?
             else
                 cryptsetup open --type luks -v "$devname" "luks-${devname##*/}"
+                retval=$?
             fi
-            enter_to_continue
-            return 0;;
+            if (( retval != 0 )); then
+                enter_to_continue
+                return 0
+            fi
+            return 1;;
         "3")
             msg "Closing luks volume ..."
+            retval=0
             if (( udisks )); then
                 udisksctl lock --block-device "$devname"
+                retval=$?
             else
                 cryptsetup close --type luks "$devname"
+                retval=$?
             fi
-            enter_to_continue
-            return 0;;
+            if (( retval != 0 )); then
+                enter_to_continue
+                return 0
+            fi
+            return 1;;
         "4")
             if (( custom4_show )); then
                 msg "Running custom command: $custom4_desc ..."
