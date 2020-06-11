@@ -425,7 +425,7 @@ check_device() {
 
 action_eject() {
     check_device "$1" || return 1
-    info_mounted "$1" && action_unmount "$1"
+    info_mounted "$1" && action_unmount --no-prompt "$1"
     if ! info_mounted "$1"; then
         msg "Ejecting $1 ..."
         device_type=$(info_type "$1")
@@ -476,6 +476,8 @@ action_open() {
 }
 
 action_unmount() {
+    local -i no_prompt=0
+    [[ "$1" == "--no-prompt" ]] && no_prompt=1 && shift 1
     if info_mounted "$1"; then
         if unmount_command "$1"; then
             msg "$1 unmounted successfully."
@@ -486,7 +488,7 @@ action_unmount() {
     else
         error "$1 is not mounted."
     fi
-    enter_to_continue
+    (( !no_prompt )) && enter_to_continue
 }
 # }}}
 
