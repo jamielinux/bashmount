@@ -71,25 +71,25 @@ mount_command() {
 
     msg "Mounting $1 ..."
 
-    if (( udisks == 0 )); then
+    if (( udisks )); then
+        udisksctl mount $mount_options $extra_mount_options --block-device "$1"
+    else
         read -r -e -p "Choose the mountpoint directory: " dir
         while [[ ! -d "$dir" ]] || findmnt "$dir" >/dev/null 2>&1; do
             error "No such directory, or mountpoint is already in use."
             read -r -e -p "Choose the mountpoint directory: " dir
         done
         mount $mount_options $extra_mount_options "$1" "$dir"
-    else
-        udisksctl mount $mount_options $extra_mount_options --block-device "$1"
     fi
 }
 
 unmount_command() {
     msg "Unmounting $1 ..."
 
-    if (( udisks == 0 )); then
-        umount "$1"
-    else
+    if (( udisks )); then
         udisksctl unmount --block-device "$1"
+    else
+        umount "$1"
     fi
 }
 
@@ -525,7 +525,7 @@ list_devices() {
     done
 
     # List internal media.
-    if (( show_internal == 1 )) && (( ${#internal[*]} )); then
+    if (( show_internal )) && (( ${#internal[*]} )); then
         print_separator_internal
         for devname in ${internal[@]}; do
             print_device_name
@@ -533,7 +533,7 @@ list_devices() {
         printf '\n'
     fi
     # List removable media.
-    if (( show_removable == 1 )) && (( ${#removable[*]} )); then
+    if (( show_removable )) && (( ${#removable[*]} )); then
         print_separator_removable
         for devname in ${removable[@]}; do
             print_device_name
@@ -541,14 +541,14 @@ list_devices() {
         printf '\n'
     fi
     # List optical media.
-    if (( show_optical == 1 )) && (( ${#optical[*]} )); then
+    if (( show_optical )) && (( ${#optical[*]} )); then
         print_separator_optical
         for devname in ${optical[@]}; do
             print_device_name optical
         done
         printf '\n'
     fi
-    (( device_number == 0 )) && printf '%s\n' "No devices."
+    (( !device_number )) && printf '%s\n' "No devices."
 }
 
 submenu() {
@@ -604,24 +604,24 @@ submenu() {
             return 0;;
         "2")
             msg "Opening luks volume ..."
-            if (( udisks == 0 )); then
-                cryptsetup open --type luks -v "$devname" "luks-${devname##*/}"
-            else
+            if (( udisks )); then
                 udisksctl unlock --block-device "$devname"
+            else
+                cryptsetup open --type luks -v "$devname" "luks-${devname##*/}"
             fi
             enter_to_continue
             return 0;;
         "3")
             msg "Closing luks volume ..."
-            if (( udisks == 0 )); then
-                cryptsetup close --type luks "$devname"
-            else
+            if (( udisks )); then
                 udisksctl lock --block-device "$devname"
+            else
+                cryptsetup close --type luks "$devname"
             fi
             enter_to_continue
             return 0;;
         "4")
-            if (( custom4_show == 1 )); then
+            if (( custom4_show )); then
                 msg "Running custom command: $custom4_desc ..."
                 custom4_command "$devname"
                 enter_to_continue
@@ -630,7 +630,7 @@ submenu() {
             fi
             return 0;;
         "5")
-            if (( custom5_show == 1 )); then
+            if (( custom5_show )); then
                 msg "Running custom command: $custom5_desc ..."
                 custom5_command "$devname"
                 enter_to_continue
@@ -639,7 +639,7 @@ submenu() {
             fi
             return 0;;
         "6")
-            if (( custom6_show == 1 )); then
+            if (( custom6_show )); then
                 msg "Running custom command: $custom6_desc ..."
                 custom6_command "$devname"
                 enter_to_continue
@@ -724,6 +724,6 @@ declare -a listed=()
 while true; do
     clear
     list_devices
-    (( show_commands == 1 )) && print_commands
+    (( show_commands )) && print_commands
     select_action
 done
