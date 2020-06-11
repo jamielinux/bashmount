@@ -215,13 +215,12 @@ print_submenu_commands() {
 UTF8_LINE='\xE2\x94\x81'
 UTF8_BRACKET_L='\xE2\x94\xA5'
 UTF8_BRACKET_R='\xE2\x94\x9D'
+NOTE_ARROW="==>"
 
 if (( pretty )); then
-    NOTE_ARROW="${BOLD}\xE2\x80\xA3${ALL_OFF}"
     utf_sed_expr="y/]-[/${UTF8_BRACKET_R}${UTF8_LINE}${UTF8_BRACKET_L}/"
 else
     utf_sed_expr=''
-    NOTE_ARROW="==>"
 fi
 
 pretty_print() {
