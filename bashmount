@@ -704,7 +704,7 @@ select_action() {
                 for devname in ${mounted[@]}; do
                     action_unmount "$devname" || continue
                 done
-                enter_to_contine
+                enter_to_continue
                 return 1;;
             "r"|"") return 0;;
             "q"|"b") exit 0;;
