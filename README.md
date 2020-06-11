@@ -30,10 +30,11 @@ alias bm='bashmount'
 
 * `bash`
 * `eject`
-* Optional: `udisks2`
+* _Optional:_ `udisks2`
 
-`bashmount` works best when `udisks2` is installed, so that regular users can
-manage removable media without sudo.
+`udisks2` is recommended, so that regular users can manage removable media
+without sudo. By default, `udisks2` is auto-detected, but you can force use
+of `udisks2` on or off in the configuration file.
 
 ## Configuration
 
