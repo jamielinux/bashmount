@@ -494,7 +494,7 @@ list_devices() {
 
         # Hide blacklisted devices.
         for string in "${blacklist[@]}"; do
-            lsblk -dPno NAME,TYPE,FSTYPE,LABEL,MOUNTPOINT,PARTLABEL "$devname" \
+            lsblk -dPno NAME,TYPE,FSTYPE,LABEL,MOUNTPOINT,PARTLABEL,UUID "$devname" \
                 | grep -E "$string" >/dev/null 2>&1
             (( $? )) || continue 2
         done
