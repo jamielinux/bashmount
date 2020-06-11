@@ -150,7 +150,7 @@ msg() {
     printf '\n%b\n\n' "${GREEN}${NOTE_ARROW}${ALL_OFF}${BOLD} ${*}${ALL_OFF}" >&2
 }
 error() {
-    printf '\n%b\n\n' "${RED}${NOTE_ARROW}${ALL_OFF}${BOLD} ERROR: ${*}${ALL_OFF}" >&2
+    printf '\n%b\n\n' "${RED}${NOTE_ARROW}${BOLD} ERROR: ${*}${ALL_OFF}" >&2
 }
 enter_to_continue() {
     printf '\n'
