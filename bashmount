@@ -70,7 +70,6 @@ mount_command() {
     fi
 
     msg "Mounting $1 ..."
-
     if (( udisks )); then
         udisksctl mount $mount_options $extra_mount_options --block-device "$1"
     else
@@ -82,7 +81,6 @@ mount_command() {
 
 unmount_command() {
     msg "Unmounting $1 ..."
-
     if (( udisks )); then
         udisksctl unmount --block-device "$1"
     else
@@ -410,7 +408,11 @@ action_eject() {
     info_mounted "$1" && action_unmount "$1"
     if ! info_mounted "$1"; then
         msg "Ejecting $1 ..."
-        eject "$1"
+        if (( udisks )); then
+            udisksctl power-off -b "$1"
+        else
+            eject "$1"
+        fi
         # Give the device some time to eject. If we don't then sometimes the ejected
         # device will still be present when returning to the main menu.
         (( $? == 0 )) && sleep 2
