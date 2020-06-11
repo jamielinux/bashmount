@@ -412,8 +412,8 @@ action_eject() {
         eject "$1"
         # Give the device some time to eject. If we don't then sometimes the ejected
         # device will still be present when returning to the main menu.
-        enter_to_continue
         sleep 2
+        enter_to_continue
     fi
 }
 
