@@ -428,11 +428,14 @@ action_info() {
 }
 
 action_mount() {
+    local -i retval=0
     check_device "$1" || return 1
     if info_mounted "$1"; then
         error "$1 is already mounted."
     else
-        if mount_command "$1"; then
+        mount_command "$1"
+        retval=$?
+        if (( retval == 0 )); then
             msg "$1 mounted successfully."
             (( run_post_mount )) && post_mount "$1"
         else
@@ -440,19 +443,13 @@ action_mount() {
         fi
     fi
     enter_to_continue
+    return $retval
 }
 
 action_open() {
     check_device "$1" || return 1
     if ! info_mounted "$1"; then
-        if mount_command "$1"; then
-            msg "$1 mounted successfully."
-            (( run_post_mount )) && post_mount "$1"
-        else
-            error "$1 could not be mounted."
-            enter_to_continue
-            return 1
-        fi
+        action_mount "$1" || return 1
     fi
     msg "Opening $1 ..."
     filemanager "$(info_mountpath "$1")"
