@@ -338,7 +338,7 @@ print_device() {
         if [[ -n "$uuid" ]]; then
             for dev in "${all[@]}"; do
                 if [[ "$dev" == "/dev/mapper/luks-$uuid" ]]; then
-                    printf '%s' " ${GREEN}decrypted: luks-${uuid:0:4}...${ALL_OFF}"
+                    printf '%s' " ${GREEN}decrypted [luks-${uuid:0:4}...]${ALL_OFF}"
                 fi
             done
         fi
