@@ -212,7 +212,7 @@ print_submenu_commands() {
 __print() {
     printf "${BOLD}"
     if (( pretty )); then
-        printf '%s\n\n' "$1" | sed -e "y/]-[/┝━┥/"
+        printf '%s\n\n' "$1" | sed -e "y/-/━/"
     else
         printf '%s\n\n' "$1"
     fi
@@ -222,19 +222,19 @@ print_separator() {
     __print "-----------------------------------------------------------------------------"
 }
 print_separator_commands() {
-    __print "--------------------------------[ Commands ]---------------------------------"
+    __print "--------------------------------  Commands  ---------------------------------"
 }
 print_separator_device() {
-    __print "-------------------------------[ Device Menu ]-------------------------------"
+    __print "-------------------------------  Device Menu  -------------------------------"
 }
 print_separator_optical() {
-    __print "------------------------------[ Optical Media ]------------------------------"
+    __print "------------------------------  Optical Media  ------------------------------"
 }
 print_separator_removable() {
-    __print "-----------------------------[ Removable Media ]-----------------------------"
+    __print "-----------------------------  Removable Media  -----------------------------"
 }
 print_separator_internal() {
-    __print "-----------------------------[ Internal Media ]------------------------------"
+    __print "-----------------------------  Internal Media  ------------------------------"
 }
 
 print_help() {
