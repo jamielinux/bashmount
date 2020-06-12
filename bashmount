@@ -284,16 +284,13 @@ print_device() {
 
     local label="$(info_fslabel "$devname")"
     local fstype="$(info_fstype "$devname")"
-    if [[ -z "$label" ]]; then
-        if (( $# == 1 )) && [[ "$1" == "optical" ]]; then
-            label="$(lsblk -dno MODEL "$devname")"
-        else
-            label="$(info_partlabel "$devname")"
-        fi
-        [[ -z "$label" ]] && [[ "$fstype" == "crypto_LUKS" ]] \
-            && label="crypto_LUKS"
-        [[ -z "$label" ]] && label="-"
-    fi
+
+    [[ -z "$label" ]] && (( $# == 1 )) && [[ "$1" == "optical" ]] \
+        && label="$(lsblk -dno MODEL "$devname")"
+    [[ -z "$label" ]] && label="$(info_partlabel "$devname")"
+    [[ -z "$label" ]] && [[ "$fstype" == "crypto_LUKS" ]] && label="crypto_LUKS"
+    [[ -z "$label" ]] && label="-"
+
     label="$(printf '%s' "$label" | sed -e 's/\\x20/ /g')"
 
     listed[device_number]="$devname"
