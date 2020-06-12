@@ -47,7 +47,7 @@ unset GREP_OPTIONS
 
 # Set defaults.
 declare udisks="auto"
-declare default_mount_options=""
+declare mount_options=""
 declare -i show_internal=1
 declare -i show_removable=1
 declare -i show_optical=1
@@ -125,7 +125,8 @@ if ! type -p lsblk >/dev/null 2>&1; then
     exit $EXIT_CMDNOTFOUND
 fi
 
-declare mount_options="$default_mount_options"
+# Backwards compat
+[[ -n "$default_mount_options" ]] && mount_options="$default_mount_options"
 (( ${#exclude[@]} == 0 )) && exclude=("${blacklist[@]}")
 # }}}
 
