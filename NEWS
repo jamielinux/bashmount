@@ -1,3 +1,9 @@
+bashmount 4.2.2 (2020-06-12)
+  - Fix handling of non-udisks mounting
+
+bashmount 4.2.1 (2020-06-12)
+  - Improve display of custom commands
+
 bashmount 4.2.0 (2020-06-12)
   - Allow to mount/unmount/eject/open directly on crypto_LUKS devices
   - Rename default_mount_options to mount_options
