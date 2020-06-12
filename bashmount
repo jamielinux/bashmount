@@ -416,7 +416,7 @@ __mount() {
                 return 1
             fi
         fi
-        mount $mount_options "$1" "$dir"
+        sudo mount $mount_options "$1" "$dir"
     fi
 }
 
@@ -425,7 +425,7 @@ __unmount() {
     if (( udisks )); then
         udisksctl unmount --block-device "$1"
     else
-        umount "$1"
+        sudo umount "$1"
     fi
 }
 
@@ -545,7 +545,7 @@ action_unlock() {
         udisksctl unlock --block-device "$devname"
         retval=$?
     else
-        cryptsetup open --type luks -v "$devname" "luks-${devname##*/}"
+        sudo cryptsetup open --type luks -v "$devname" "luks-${devname##*/}"
         retval=$?
     fi
     (( retval != 0 )) && enter_to_continue
@@ -559,7 +559,7 @@ action_lock() {
         udisksctl lock --block-device "$devname"
         retval=$?
     else
-        cryptsetup close --type luks "$devname"
+        sudo cryptsetup close --type luks "$devname"
         retval=$?
     fi
     (( retval != 0 )) && enter_to_continue
