@@ -448,23 +448,18 @@ action_info() {
 
 action_mount() {
     check_device "$1" || return 1
-    local -i retval=0
     if info_mounted "$1"; then
         error "$1 is already mounted."
-        retval=1
-    else
-        mount_command "$1"
-        retval=$?
-        if (( retval == 0 )); then
-            msg "$1 mounted successfully."
-            (( run_post_mount )) && post_mount "$1"
-            sleep 0.1s
-        else
-            error "$1 could not be mounted."
-            retval=1
-        fi
+        return 1
     fi
-    return $retval
+    if mount_command "$1"; then
+        msg "$1 mounted successfully."
+        (( run_post_mount )) && post_mount "$1"
+        sleep 0.1s
+        return 0
+    fi
+    error "$1 could not be mounted."
+    return 1
 }
 
 action_open() {
@@ -478,23 +473,18 @@ action_open() {
 
 action_unmount() {
     check_device "$1" || return 1
-    local -i retval=0
     if info_mounted "$1"; then
-        unmount_command "$1"
-        retval=$?
-        if (( retval == 0 )); then
-            msg "$1 unmounted successfully."
-            (( run_post_unmount )) && post_unmount "$1"
-            sleep 0.1s
-        else
-            error "$1 could not be unmounted."
-            retval=1
-        fi
-    else
-        error "$1 is not mounted."
-        retval=1
+        error "$1 is already unmounted."
+        return 1
     fi
-    return $retval
+    if unmount_command "$1"; then
+        msg "$1 unmounted successfully."
+        (( run_post_unmount )) && post_unmount "$1"
+        sleep 0.1s
+        return 0
+    fi
+    error "$1 is not mounted."
+    return 1
 }
 # }}}
 
