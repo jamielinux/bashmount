@@ -66,26 +66,6 @@ declare -i run_post_unmount=0
 declare -a exclude=()
 declare -a blacklist=() # backwards compat
 
-mount_command() {
-    msg "Mounting $1 ..."
-    if (( udisks )); then
-        udisksctl mount $mount_options --block-device "$1"
-    else
-        read -r -e -p "Choose the mountpoint directory: " dir
-        [[ ! -e "$dir" ]] && mkdir -p "$dir"
-        mount $mount_options "$1" "$dir"
-    fi
-}
-
-unmount_command() {
-    msg "Unmounting $1 ..."
-    if (( udisks )); then
-        udisksctl unmount --block-device "$1"
-    else
-        umount "$1"
-    fi
-}
-
 filemanager() {
     ( cd "$1" && "$SHELL" )
 }
@@ -411,6 +391,26 @@ info_used() {
 # }}}
 
 # {{{ ··· DEVICE MANIPULATION
+mount_command() {
+    msg "Mounting $1 ..."
+    if (( udisks )); then
+        udisksctl mount $mount_options --block-device "$1"
+    else
+        read -r -e -p "Choose the mountpoint directory: " dir
+        [[ ! -e "$dir" ]] && mkdir -p "$dir"
+        mount $mount_options "$1" "$dir"
+    fi
+}
+
+unmount_command() {
+    msg "Unmounting $1 ..."
+    if (( udisks )); then
+        udisksctl unmount --block-device "$1"
+    else
+        umount "$1"
+    fi
+}
+
 check_device() {
     if [[ ! -b "$1" ]]; then
         error "$1 is no longer available."
