@@ -52,7 +52,6 @@ declare -i show_internal=1
 declare -i show_removable=1
 declare -i show_optical=1
 declare -i show_commands=1
-declare -i show_full_device_names=0
 declare -i colourize=1
 declare -i pretty=1
 declare -i custom4_show=0
@@ -304,14 +303,12 @@ print_device() {
 
     devname_short="${devname##*/}"
     label_short="$label"
-    if (( !show_full_device_names )); then
-        if (( ${#devname_short} > padding_name )); then
-            len=$(( padding_name - 4 ))
-            devname_short="${devname_short:0:len}..."
-        elif (( ${#label} > padding_label )); then
-            label_len=$(( padding_label - 4 ))
-            label_short="${label:0:label_len}..."
-        fi
+    if (( ${#devname_short} > padding_name )); then
+        len=$(( padding_name - 4 ))
+        devname_short="${devname_short:0:len}..."
+    elif (( ${#label} > padding_label )); then
+        label_len=$(( padding_label - 4 ))
+        label_short="${label:0:label_len}..."
     fi
 
     printf '%s' " ${devname_short}:"
