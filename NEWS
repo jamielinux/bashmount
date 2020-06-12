@@ -1,3 +1,21 @@
+bashmount 4.2.0 (2020-06-12)
+  - Allow to mount/unmount/eject/open directly on crypto_LUKS devices
+  - Rename default_mount_options to mount_options
+  - Remove show_full_device_names option
+  - Remove ability to override mount/unmount commands
+  - More code cleanup
+
+  Thanks to nick87720z (aka https://github.com/nick87720z) for:
+  - https://github.com/jamielinux/bashmount/pull/21
+      - Use nicer unicode characters for some UI elements, configurable with
+        the 'pretty' option.
+
+  Thanks to Jonatan Olofsson (aka https://github.com/jonatanolofsson) for:
+  - https://github.com/jamielinux/bashmount/pull/22
+      - Treat Ctrl-D the same as 'q' (ie, quit).
+  - https://github.com/jamielinux/bashmount/pull/23
+      - Put default filemanager inside subshell to avoid lock on unmount
+
 bashmount 4.1.0 (2020-06-11)
   - Only require one key press in device submenu
 
