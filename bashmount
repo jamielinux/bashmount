@@ -411,8 +411,10 @@ __mount() {
         read -r -e -p "Choose the mountpoint directory: " dir
         [[ -z "$dir" ]] && return 1
         if [[ ! -e "$dir" ]]; then
-            mkdir -p "$dir" || error "'$dir': Could not create directory."
-            return 1
+            if ! mkdir -p "$dir"; then
+                error "'$dir': Could not create directory."
+                return 1
+            fi
         fi
         mount $mount_options "$1" "$dir"
     fi
