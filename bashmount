@@ -167,7 +167,7 @@ print_submenu_commands() {
     print_separator_commands
     printf '%s' " ${BLUE}e${ALL_OFF}: eject"
     printf '%s' "               ${BLUE}i${ALL_OFF}: info"
-    if info_mounted "$devname"; then
+    if check_mounted "$devname"; then
         printf '%s' "             ${BLUE}u${ALL_OFF}: unmount"
     else
         printf '%s' "             ${BLUE}m${ALL_OFF}: mount  "
@@ -337,7 +337,7 @@ print_device() {
                 fi
             done
         fi
-    elif info_mounted "$devname"; then
+    elif check_mounted "$devname"; then
         mountpath="$(info_mountpath "$devname")"
         printf '%s' " ${GREEN}[$mountpath]${ALL_OFF}"
         mounted[${#mounted[*]}]="$devname"
@@ -347,14 +347,21 @@ print_device() {
 # }}}
 
 # {{{ ··· INFORMATION RETRIEVAL
-# Returns 0 (ie, success) if the device is registered as a removable device in
-# the kernel. Otherwise it returns 1.
-info_removable() {
-    [[ "$(lsblk -drno RM "$1")" == "1" ]]
+# Returns 0 (ie, success) if the device still exists. Otherwise it returns 1.
+check_device() {
+    if [[ ! -b "$1" ]]; then
+        error "$1 is no longer available."
+        return 1
+    fi
 }
 # Returns 0 (ie, success) if the device is mounted. Otherwise it returns 1.
-info_mounted() {
+check_mounted() {
     findmnt -no TARGET "$1" >/dev/null 2>&1
+}
+# Returns 0 (ie, success) if the device is registered as a removable device in
+# the kernel. Otherwise it returns 1.
+check_removable() {
+    [[ "$(lsblk -drno RM "$1")" == "1" ]]
 }
 
 info_fslabel() {
@@ -381,10 +388,15 @@ info_uuid() {
 info_used() {
     lsblk -drno FSUSE% "$1" 2>/dev/null
 }
+
+get_luks_child() {
+    local uuid="$(info_uuid "$1")"
+    printf '%s' "/dev/mapper/luks-$uuid"
+}
 # }}}
 
 # {{{ ··· DEVICE MANIPULATION
-mount_command() {
+__mount() {
     msg "Mounting $1 ..."
     if (( udisks )); then
         udisksctl mount $mount_options --block-device "$1"
@@ -399,7 +411,7 @@ mount_command() {
     fi
 }
 
-unmount_command() {
+__unmount() {
     msg "Unmounting $1 ..."
     if (( udisks )); then
         udisksctl unmount --block-device "$1"
@@ -408,19 +420,17 @@ unmount_command() {
     fi
 }
 
-check_device() {
-    if [[ ! -b "$1" ]]; then
-        error "$1 is no longer available."
-        return 1
-    fi
-    return 0
-}
-
 action_eject() {
     check_device "$1" || return 1
+
+    if [[ "$(info_fstype "$1")" == "crypto_LUKS" ]]; then
+        action_unmount "$1" || return 1
+    else
+        check_mounted "$1" && action_unmount "$1"
+    fi
+
     local -i retval=0
-    info_mounted "$1" && action_unmount "$1"
-    if ! info_mounted "$1"; then
+    if ! check_mounted "$1"; then
         msg "Ejecting $1 ..."
         device_type=$(info_type "$1")
         if (( udisks )) && [[ "$device_type" != "rom" ]]; then
@@ -450,11 +460,24 @@ action_info() {
 
 action_mount() {
     check_device "$1" || return 1
-    if info_mounted "$1"; then
+    if check_mounted "$1"; then
         error "$1 is already mounted."
         return 1
     fi
-    if mount_command "$1"; then
+
+    if [[ "$(info_fstype "$1")" == "crypto_LUKS" ]]; then
+        luks_child="$(get_luks_child "$1")"
+        if [[ ! -b "$luks_child" ]]; then
+            if ! action_unlock "$1"; then
+                enter_to_continue
+                return 1
+            fi
+        fi
+        action_mount "$luks_child"
+        return $?
+    fi
+
+    if __mount "$1"; then
         msg "$1 mounted successfully."
         (( run_post_mount )) && post_mount "$1"
         sleep 0.1s
@@ -466,7 +489,14 @@ action_mount() {
 
 action_open() {
     check_device "$1" || return 1
-    if ! info_mounted "$1"; then
+    if [[ "$(info_fstype "$1")" == "crypto_LUKS" ]]; then
+        luks_child="$(get_luks_child "$1")"
+        if [[ ! -b "$luks_child" ]]; then
+            action_mount "$1" || return 1
+            action_open "$luks_child"
+            return $?
+        fi
+    elif ! check_mounted "$1"; then
         action_mount "$1" || return 1
     fi
     msg "Opening $1 ..."
@@ -475,11 +505,27 @@ action_open() {
 
 action_unmount() {
     check_device "$1" || return 1
-    if info_mounted "$1"; then
+
+    if [[ "$(info_fstype "$1")" == "crypto_LUKS" ]]; then
+        luks_child="$(get_luks_child "$1")"
+        if [[ -b "$luks_child" ]]; then
+            if check_mounted "$luks_child"; then
+                action_unmount "$luks_child" || return 1
+            fi
+            if ! action_lock "$1"; then
+                enter_to_continue
+                return 1
+            fi
+        fi
+        return $?
+    fi
+
+    if ! check_mounted "$1"; then
         error "$1 is already unmounted."
         return 1
     fi
-    if unmount_command "$1"; then
+
+    if __unmount "$1"; then
         msg "$1 unmounted successfully."
         (( run_post_unmount )) && post_unmount "$1"
         sleep 0.1s
@@ -487,6 +533,25 @@ action_unmount() {
     fi
     error "$1 is not mounted."
     return 1
+}
+
+action_unlock() {
+    msg "Opening luks volume ..."
+    if (( udisks )); then
+        udisksctl unlock --block-device "$devname" || enter_to_continue
+    else
+        cryptsetup open --type luks -v "$devname" "luks-${devname##*/}" \
+            || enter_to_continue
+    fi
+}
+
+action_lock() {
+    msg "Closing luks volume ..."
+    if (( udisks )); then
+        udisksctl lock --block-device "$devname" || enter_to_continue
+    else
+        cryptsetup close --type luks "$devname" || enter_to_continue
+    fi
 }
 # }}}
 
@@ -516,7 +581,7 @@ list_devices() {
         # Sort devices into arrays removable, internal, and optical.
         local device_type=$(info_type "$devname")
         if [[ "$device_type" == "part" ]]; then
-            if info_removable "$devname"; then
+            if check_removable "$devname"; then
                 removable[${#removable[*]}]="$devname"
             else
                 internal[${#internal[*]}]="$devname"
@@ -529,7 +594,7 @@ list_devices() {
                 local parent_uuid="$(info_uuid "$parent_devname")"
                 [[ -z "$parent_uuid" ]] && continue
                 if [[ "/dev/mapper/luks-$parent_uuid" == "$devname" ]]; then
-                    if info_removable "$parent_devname"; then
+                    if check_removable "$parent_devname"; then
                         removable[${#removable[*]}]="$devname"
                         parent_found=1
                         break
@@ -546,7 +611,7 @@ list_devices() {
         # be visible.
         elif [[ "$device_type" == "disk" ]]; then
             [[ "${all[*]}" =~ $devname ]] && continue
-            if info_removable "$devname"; then
+            if check_removable "$devname"; then
                 removable[${#removable[*]}]="$devname"
             else
                 internal[${#internal[*]}]="$devname"
@@ -601,7 +666,7 @@ submenu() {
     local uuid="$(info_uuid "$devname")"
 
     local -i mounted=0
-    info_mounted "$devname" && mounted=1
+    check_mounted "$devname" && mounted=1
 
     # Display the user interface.
     clear
@@ -659,36 +724,8 @@ submenu() {
         "q") exit;;
         "?") print_help_submenu; return 0;;
         "1") sudo sh -c "cryptsetup luksDump '$devname' | less"; return 0;;
-        "2")
-            msg "Opening luks volume ..."
-            retval=0
-            if (( udisks )); then
-                udisksctl unlock --block-device "$devname"
-                retval=$?
-            else
-                cryptsetup open --type luks -v "$devname" "luks-${devname##*/}"
-                retval=$?
-            fi
-            if (( retval != 0 )); then
-                enter_to_continue
-                return 0
-            fi
-            return 1;;
-        "3")
-            msg "Closing luks volume ..."
-            retval=0
-            if (( udisks )); then
-                udisksctl lock --block-device "$devname"
-                retval=$?
-            else
-                cryptsetup close --type luks "$devname"
-                retval=$?
-            fi
-            if (( retval != 0 )); then
-                enter_to_continue
-                return 0
-            fi
-            return 1;;
+        "2") action_unlock "$devname"; return 1;;
+        "3") action_lock "$devname"; return 1;;
         "4")
             if (( custom4_show )); then
                 msg "Running custom command: $custom4_desc ..."
