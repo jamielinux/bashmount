@@ -345,36 +345,33 @@ print_device() {
 # }}}
 
 # {{{ ··· INFORMATION RETRIEVAL
-# Returns 0 if the device is registered as removable device in the kernel,
-# otherwise it returns 1.
+# Returns 0 (ie, success) if the device is registered as a removable device in
+# the kernel. Otherwise it returns 1.
 info_removable() {
     [[ "$(lsblk -drno RM "$1")" == "1" ]]
 }
-# Prints the device type, for example partition or disk.
-info_type() {
-    lsblk -drno TYPE "$1" 2>/dev/null
-}
-# Prints the filesystem label, if present.
-info_fslabel() {
-    lsblk -drno LABEL "$1" 2>/dev/null
-}
-# Prints the partition label, if present.
-info_partlabel() {
-    lsblk -drno PARTLABEL "$1" 2>/dev/null
-}
-# Prints the mountpath, if mounted.
-info_mountpath() {
-    findmnt -no TARGET "$1" 2>/dev/null
-}
-# Returns 0 if the device is mounted, 1 otherwise.
+# Returns 0 (ie, success) if the device is mounted. Otherwise it returns 1.
 info_mounted() {
     findmnt -no TARGET "$1" >/dev/null 2>&1
+}
+
+info_fslabel() {
+    lsblk -drno LABEL "$1" 2>/dev/null
 }
 info_fstype() {
     lsblk -drno FSTYPE "$1" 2>/dev/null
 }
+info_mountpath() {
+    findmnt -no TARGET "$1" 2>/dev/null
+}
+info_partlabel() {
+    lsblk -drno PARTLABEL "$1" 2>/dev/null
+}
 info_size() {
     lsblk -drno SIZE "$1" 2>/dev/null
+}
+info_type() {
+    lsblk -drno TYPE "$1" 2>/dev/null
 }
 info_uuid() {
     lsblk -drno UUID "$1" 2>/dev/null
