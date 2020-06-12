@@ -259,7 +259,7 @@ print_help() {
     enter_to_continue
 }
 
-print_help_sub() {
+print_help_submenu() {
     clear
     print_submenu_commands
     printf '\n'
@@ -655,7 +655,7 @@ submenu() {
         "b") return 1;;
         ""|"r") return 0;;
         "q") exit;;
-        "?") print_help_sub; return 0;;
+        "?") print_help_submenu; return 0;;
         "1") sudo sh -c "cryptsetup luksDump '$devname' | less"; return 0;;
         "2")
             msg "Opening luks volume ..."
