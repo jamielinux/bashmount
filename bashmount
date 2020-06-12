@@ -133,6 +133,7 @@ msg() {
 }
 error() {
     printf '\n%b\n\n' "${RED}${ARROW}${BOLD} ERROR: ${*}${ALL_OFF}" >&2
+    enter_to_continue
 }
 enter_to_continue() {
     printf '\n'
@@ -141,7 +142,6 @@ enter_to_continue() {
 invalid_command() {
     printf '\n'
     error "Invalid command. See the help menu."
-    enter_to_continue
 }
 
 print_commands() {
@@ -412,7 +412,6 @@ unmount_command() {
 check_device() {
     if [[ ! -b "$1" ]]; then
         error "$1 is no longer available."
-        enter_to_continue
         return 1
     fi
     return 0
@@ -465,9 +464,9 @@ action_mount() {
             sleep 0.1s
         else
             error "$1 could not be mounted."
+            retval=1
         fi
     fi
-    (( retval != 0 )) && enter_to_continue
     return $retval
 }
 
@@ -492,12 +491,12 @@ action_unmount() {
             sleep 0.1s
         else
             error "$1 could not be unmounted."
+            retval=1
         fi
     else
         error "$1 is not mounted."
         retval=1
     fi
-    (( retval != 0 )) && enter_to_continue
     return $retval
 }
 # }}}
@@ -786,7 +785,6 @@ select_action() {
             "a")
                 if (( ! ${#mounted[*]} )); then
                     error "No devices mounted."
-                    enter_to_continue
                     return 1
                 fi
                 printf '\n'
