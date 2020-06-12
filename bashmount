@@ -54,6 +54,7 @@ declare -i show_optical=1
 declare -i show_commands=1
 declare -i show_full_device_names=0
 declare -i colourize=1
+declare -i pretty=1
 declare -i custom4_show=0
 declare -i custom5_show=0
 declare -i custom6_show=0
@@ -146,10 +147,10 @@ if (( colourize )); then
 fi
 
 msg() {
-    printf '\n%s\n\n' "${GREEN}==>${ALL_OFF}${BOLD} ${*}${ALL_OFF}" >&2
+    printf '\n%b\n\n' "${GREEN}${NOTE_ARROW}${ALL_OFF}${BOLD} ${*}${ALL_OFF}" >&2
 }
 error() {
-    printf '\n%s\n\n' "${RED}==>${ALL_OFF}${BOLD} ERROR: ${*}${ALL_OFF}" >&2
+    printf '\n%b\n\n' "${RED}${NOTE_ARROW}${BOLD} ERROR: ${*}${ALL_OFF}" >&2
 }
 enter_to_continue() {
     printf '\n'
@@ -211,43 +212,60 @@ print_submenu_commands() {
     fi
 }
 
+UTF8_LINE='\xE2\x94\x81'
+UTF8_BRACKET_L='\xE2\x94\xA5'
+UTF8_BRACKET_R='\xE2\x94\x9D'
+NOTE_ARROW="==>"
+
+if (( pretty )); then
+    utf_sed_expr="y/]-[/${UTF8_BRACKET_R}${UTF8_LINE}${UTF8_BRACKET_L}/"
+else
+    utf_sed_expr=''
+fi
+
+pretty_print() {
+    printf "${BOLD}"
+    printf "%s\n\n" "${1}" | sed -e "${utf_sed_expr}"
+    printf "${ALL_OFF}"
+}
+
 print_separator() {
-    printf '%s\n\n' "-----------------------------------------------------------------------------"
+    pretty_print '-----------------------------------------------------------------------------'
 }
 print_separator_commands() {
-    printf '%s\n\n' "--------------------------------- COMMANDS ----------------------------------"
+    pretty_print '--------------------------------[ Commands ]---------------------------------'
 }
 print_separator_device() {
-    printf '%s\n\n' "-------------------------------- DEVICE MENU --------------------------------"
+    pretty_print '-------------------------------[ Device Menu ]-------------------------------'
 }
 print_separator_optical() {
-    printf '%s\n\n' "------------------------------- OPTICAL MEDIA -------------------------------"
+    pretty_print '------------------------------[ Optical Media ]------------------------------'
 }
 print_separator_removable() {
-    printf '%s\n\n' "------------------------------ REMOVABLE MEDIA ------------------------------"
+    pretty_print '-----------------------------[ Removable Media ]-----------------------------'
 }
 print_separator_internal() {
-    printf '%s\n\n' "------------------------------ INTERNAL MEDIA -------------------------------"
+    pretty_print '-----------------------------[ Internal Media ]------------------------------'
 }
 
 print_help() {
     clear
     print_commands
     print_separator
-    printf '%s' "  ${GREEN}==>${ALL_OFF}  "
+    printf '%b' "  ${GREEN}${NOTE_ARROW}${ALL_OFF}  "
     printf '%s' "${BOLD}To mount the first device, enter ${ALL_OFF}"
     printf '%s' "${BLUE}1m${ALL_OFF}${BOLD}.${ALL_OFF}"
     printf '\n\n'
-    printf '%s' "  ${GREEN}==>${ALL_OFF}  "
+    printf '%b' "  ${GREEN}${NOTE_ARROW}${ALL_OFF}  "
     printf '%s' "${BOLD}To open the mountpath directory of the first${ALL_OFF}"
     printf '\n\n'
     printf '%s' "       ${BOLD}device (mounting if required), enter "
     printf '%s' "${BLUE}1o${ALL_OFF}${BOLD}.${ALL_OFF}"
     printf '\n\n'
-    printf '%s' "  ${GREEN}==>${ALL_OFF}  "
+    printf '%b' "  ${GREEN}${NOTE_ARROW}${ALL_OFF}  "
     printf '%s' "${BOLD}To view a device sub-menu, just enter the number.${ALL_OFF}"
     printf '\n\n'
-    printf '%s' "  ${GREEN}==>${ALL_OFF}  "
+    printf '%b' "  ${GREEN}${NOTE_ARROW}${ALL_OFF}  "
     printf '%s' "${BLUE}[Enter]${ALL_OFF}"
     printf '%s' "${BOLD}, "
     printf '%s' "${BLUE}a${ALL_OFF}"
@@ -266,11 +284,11 @@ print_help_sub() {
     print_submenu_commands
     printf '\n'
     print_separator
-    printf '%s' "  ${GREEN}==>${ALL_OFF}  "
+    printf '%b' "  ${GREEN}${NOTE_ARROW}${ALL_OFF}  "
     printf '%s' "${BOLD}To perform a command, enter a character and press ${ALL_OFF}"
     printf '%s' "${BLUE}[Enter]${ALL_OFF}${BOLD}.${ALL_OFF}"
     printf '\n\n'
-    printf '%s' "  ${GREEN}==>${ALL_OFF}  "
+    printf '%b' "  ${GREEN}${NOTE_ARROW}${ALL_OFF}  "
     printf '%s' "${BOLD}For example, to mount this device, type ${ALL_OFF}"
     printf '%s' "${BLUE}m${ALL_OFF} and press ${BLUE}[Enter]${ALL_OFF}"
     printf '%s' "${BOLD}.${ALL_OFF}"
