@@ -63,7 +63,8 @@ declare custom5_desc=""
 declare custom6_desc=""
 declare -i run_post_mount=0
 declare -i run_post_unmount=0
-declare -a blacklist=()
+declare -a exclude=()
+declare -a blacklist=() # backwards compat
 
 mount_command() {
     msg "Mounting $1 ..."
@@ -125,6 +126,7 @@ if ! type -p lsblk >/dev/null 2>&1; then
 fi
 
 declare mount_options="$default_mount_options"
+(( ${#exclude[@]} == 0 )) && exclude=("${blacklist[@]}")
 # }}}
 
 # {{{ ··· PRINTING FUNCTIONS
@@ -518,8 +520,8 @@ list_devices() {
     done < <(lsblk -plno NAME)
 
     for devname in "${all[@]}"; do
-        # Hide blacklisted devices.
-        for string in "${blacklist[@]}"; do
+        # Hide excluded devices.
+        for string in "${exclude[@]}"; do
             lsblk -dPno NAME,TYPE,FSTYPE,LABEL,MOUNTPOINT,PARTLABEL,UUID "$devname" \
                 | grep -E "$string" >/dev/null 2>&1
             (( $? )) || continue 2
