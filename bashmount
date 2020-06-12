@@ -167,32 +167,44 @@ print_submenu_commands() {
     printf '\n\n'
     print_separator_commands
     printf '%s' " ${BLUE}e${ALL_OFF}: eject"
-    printf '%s' "               ${BLUE}i${ALL_OFF}: info"
+    printf '%s' "              ${BLUE}i${ALL_OFF}: info"
     if check_mounted "$devname"; then
-        printf '%s' "             ${BLUE}u${ALL_OFF}: unmount"
+        printf '%s' "               ${BLUE}u${ALL_OFF}: unmount"
     else
-        printf '%s' "             ${BLUE}m${ALL_OFF}: mount  "
+        printf '%s' "               ${BLUE}m${ALL_OFF}: mount  "
     fi
     printf '%s' "            ${BLUE}o${ALL_OFF}: open"
     printf '\n\n'
     printf '%s' " ${BLUE}[Enter]${ALL_OFF}: refresh"
-    printf '%s' "       ${BLUE}b${ALL_OFF}: back"
-    printf '%s' "             ${BLUE}q${ALL_OFF}: quit"
+    printf '%s' "      ${BLUE}b${ALL_OFF}: back"
+    printf '%s' "               ${BLUE}q${ALL_OFF}: quit"
     printf '%s' "               ${BLUE}?${ALL_OFF}: help"
     printf '\n\n'
     printf '%s' " ${BLUE}1${ALL_OFF}: luksDump"
-    printf '%s' "            ${BLUE}2${ALL_OFF}: luksOpen"
-    printf '%s' "         ${BLUE}3${ALL_OFF}: luksClose"
+    printf '%s' "           ${BLUE}2${ALL_OFF}: luksOpen"
+    printf '%s' "           ${BLUE}3${ALL_OFF}: luksClose"
     printf '\n'
 
     if (( custom4_show )) || (( custom5_show )) || (( custom6_show )); then
         printf '\n'
         (( custom4_show )) && [[ -n "$custom4_desc" ]] \
-            && printf '%s' "${BLUE}4${ALL_OFF}: $custom4_desc"
+            && printf '%s' " ${BLUE}4${ALL_OFF}: $custom4_desc"
+        local -i custom4_desc_len="${#custom4_desc}"
+        if (( custom4_desc_len < 18 )); then
+            for (( i=18; i>custom4_desc_len; i-- )); do
+                printf '%s' " "
+            done
+        fi
         (( custom5_show )) && [[ -n "$custom5_desc" ]] \
-            && printf '%s' "   ${BLUE}5${ALL_OFF}: $custom5_desc"
+            && printf '%s' " ${BLUE}5${ALL_OFF}: $custom5_desc"
+        local -i custom5_desc_len="${#custom5_desc}"
+        if (( custom5_desc_len < 18 )); then
+            for (( i=18; i>custom5_desc_len; i-- )); do
+                printf '%s' " "
+            done
+        fi
         (( custom6_show )) && [[ -n "$custom6_desc" ]] \
-            && printf '%s' "   ${BLUE}6${ALL_OFF}: $custom6_desc"
+            && printf '%s' " ${BLUE}6${ALL_OFF}: $custom6_desc"
         printf '\n'
     fi
 }
