@@ -428,9 +428,8 @@ action_eject() {
             sudo eject "$1"
             retval=$?
         fi
-        # Give the device some time to eject. If we don't then sometimes the ejected
-        # device will still be present when returning to the main menu.
         if (( retval == 0 )); then
+            # Give the device some time to eject.
             sleep 1.5s
         else
             enter_to_continue
@@ -657,6 +656,7 @@ submenu() {
     # Receive user input.
     local -i retval
     if ! read -r -e -p "Command: " action; then
+        # Exit on ctrl-d.
         printf '\n'
         exit 0
     fi
@@ -737,6 +737,7 @@ select_action() {
     local letter
     print_separator
     if ! read -r -e -p "Command: " action; then
+        # Exit on ctrl-d.
         printf '\n'
         exit 0
     fi
