@@ -530,6 +530,8 @@ list_devices() {
                 internal[${#internal[*]}]="$devname"
             fi
         elif [[ "$device_type" == "crypt" ]]; then
+            # luks-xxxxx devices are never marked as removable, so we judge
+            # whether they are removable by their parent crypto_LUKS device.
             local -i parent_found=0
             for parent_devname in "${all[@]}"; do
                 local parent_uuid="$(info_uuid "$parent_devname")"
@@ -546,13 +548,7 @@ list_devices() {
                     fi
                 fi
             done
-            if (( !parent_found )); then
-                if info_removable "$devname"; then
-                    removable[${#removable[*]}]="$devname"
-                else
-                    internal[${#internal[*]}]="$devname"
-                fi
-            fi
+            (( !parent_found )) && internal[${#internal[*]}]="$devname"
         # Normally we don't want to see a "disk", but if it has no partitions
         # (eg, internal storage on some portable media devices) then it should
         # be visible.
