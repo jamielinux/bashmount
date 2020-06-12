@@ -773,7 +773,7 @@ select_action() {
     local devname
     local letter
     print_separator
-    if ! read -r -e -p "Command: " action; then
+    if ! read -r -e -p "${BOLD}Command:${ALL_OFF} " action; then
         # Exit on ctrl-d.
         printf '\n'
         exit 0
