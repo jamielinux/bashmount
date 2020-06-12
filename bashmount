@@ -63,7 +63,10 @@ declare custom6_desc=""
 declare -i run_post_mount=0
 declare -i run_post_unmount=0
 declare -a exclude=()
-declare -a blacklist=() # backwards compat
+
+# Backwards compat
+declare default_mount_options=""
+declare -a blacklist=()
 
 filemanager() {
     ( cd "$1" && "$SHELL" )
@@ -113,19 +116,18 @@ fi
 unset ALL_OFF BOLD BLUE GREEN RED
 if (( colourize )); then
     if tput setaf 0 >/dev/null 2>&1; then
-        ALL_OFF="$(tput sgr0)"
-        BOLD="$(tput bold)"
-        BLUE="${BOLD}$(tput setaf 4)"
-        GREEN="${BOLD}$(tput setaf 2)"
-        RED="${BOLD}$(tput setaf 1)"
+        declare -r ALL_OFF="$(tput sgr0)"
+        declare -r BOLD="$(tput bold)"
+        declare -r BLUE="${BOLD}$(tput setaf 4)"
+        declare -r GREEN="${BOLD}$(tput setaf 2)"
+        declare -r RED="${BOLD}$(tput setaf 1)"
     else
-        ALL_OFF="\e[1;0m"
-        BOLD="\e[1;1m"
-        BLUE="${BOLD}\e[1;34m"
-        GREEN="${BOLD}\e[1;32m"
-        RED="${BOLD}\e[1;31m"
+        declare -r ALL_OFF="\e[1;0m"
+        declare -r BOLD="\e[1;1m"
+        declare -r BLUE="${BOLD}\e[1;34m"
+        declare -r GREEN="${BOLD}\e[1;32m"
+        declare -r RED="${BOLD}\e[1;31m"
     fi
-    readonly ALL_OFF BOLD BLUE GREEN RED
 fi
 
 msg() {
