@@ -391,7 +391,11 @@ mount_command() {
         udisksctl mount $mount_options --block-device "$1"
     else
         read -r -e -p "Choose the mountpoint directory: " dir
-        [[ ! -e "$dir" ]] && mkdir -p "$dir"
+        [[ -z "$dir" ]] && return 1
+        if [[ ! -e "$dir" ]]; then
+            mkdir -p "$dir" || error "'$dir': Could not create directory."
+            return 1
+        fi
         mount $mount_options "$1" "$dir"
     fi
 }
