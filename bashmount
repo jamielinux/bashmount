@@ -463,10 +463,7 @@ action_mount() {
     if [[ "$(info_fstype "$1")" == "crypto_LUKS" ]]; then
         luks_child="$(get_luks_child "$1")"
         if [[ ! -b "$luks_child" ]]; then
-            if ! action_unlock "$1"; then
-                enter_to_continue
-                return 1
-            fi
+            action_unlock "$1" || return 1
         fi
         action_mount "$luks_child"
         return $?
@@ -507,10 +504,7 @@ action_unmount() {
             if check_mounted "$luks_child"; then
                 action_unmount "$luks_child" || return 1
             fi
-            if ! action_lock "$1"; then
-                enter_to_continue
-                return 1
-            fi
+            action_lock "$1" || return 1
         fi
         return $?
     fi
@@ -532,21 +526,30 @@ action_unmount() {
 
 action_unlock() {
     msg "Opening luks volume ..."
+    local -i retval=0
     if (( udisks )); then
-        udisksctl unlock --block-device "$devname" || enter_to_continue
+        udisksctl unlock --block-device "$devname"
+        retval=$?
     else
-        cryptsetup open --type luks -v "$devname" "luks-${devname##*/}" \
-            || enter_to_continue
+        cryptsetup open --type luks -v "$devname" "luks-${devname##*/}"
+        retval=$?
     fi
+    (( retval != 0 )) && enter_to_continue
+    return $retval
 }
 
 action_lock() {
     msg "Closing luks volume ..."
+    local -i retval=0
     if (( udisks )); then
-        udisksctl lock --block-device "$devname" || enter_to_continue
+        udisksctl lock --block-device "$devname"
+        retval=$?
     else
-        cryptsetup close --type luks "$devname" || enter_to_continue
+        cryptsetup close --type luks "$devname"
+        retval=$?
     fi
+    (( retval != 0 )) && enter_to_continue
+    return $retval
 }
 # }}}
 
