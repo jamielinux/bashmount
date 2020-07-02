@@ -186,11 +186,12 @@ print_submenu_commands() {
     printf '\n'
 
     if (( custom4_show )) || (( custom5_show )) || (( custom6_show )); then
+        local -i col_width=18
         printf '\n'
         (( custom4_show )) && [[ -n "$custom4_desc" ]] \
             && printf '%s' " ${BLUE}4${ALL_OFF}: $custom4_desc"
         local -i custom4_desc_len="${#custom4_desc}"
-        if (( custom4_desc_len < 18 )); then
+        if (( custom4_desc_len < col_width )); then
             for (( i=18; i>custom4_desc_len; i-- )); do
                 printf '%s' " "
             done
@@ -198,7 +199,7 @@ print_submenu_commands() {
         (( custom5_show )) && [[ -n "$custom5_desc" ]] \
             && printf '%s' " ${BLUE}5${ALL_OFF}: $custom5_desc"
         local -i custom5_desc_len="${#custom5_desc}"
-        if (( custom5_desc_len < 18 )); then
+        if (( custom5_desc_len < col_width )); then
             for (( i=18; i>custom5_desc_len; i-- )); do
                 printf '%s' " "
             done
