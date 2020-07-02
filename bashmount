@@ -499,9 +499,9 @@ action_open() {
         luks_child="$(get_luks_child "$1")"
         if [[ ! -b "$luks_child" ]]; then
             action_mount "$1" || return 1
-            action_open "$luks_child"
-            return $?
         fi
+        action_open "$luks_child"
+        return $?
     elif ! check_mounted "$1"; then
         action_mount "$1" || return 1
     fi
