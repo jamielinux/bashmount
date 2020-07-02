@@ -1,3 +1,8 @@
+bashmount 4.3.0 (2020-07-02)
+  - Fix bug when opening crypto_LUKS devices directly
+  - Fix error message when an unmount fails
+  - Fix bug that inadvertently hid disks with no partitions
+
 bashmount 4.2.5 (2020-06-12)
   - Tweak appearance
 
