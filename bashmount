@@ -534,7 +534,7 @@ action_unmount() {
         sleep 0.1s
         return 0
     fi
-    error "$1 is not mounted."
+    error "$1 could not be unmounted."
     return 1
 }
 
