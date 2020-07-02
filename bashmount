@@ -623,7 +623,9 @@ list_devices() {
         # (eg, internal storage on some portable media devices) then it should
         # be visible.
         elif [[ "$device_type" == "disk" ]]; then
-            [[ "${all[*]}" =~ $devname ]] && continue
+            for (( i=0; i<${#all[@]}; i++ )); do
+                [[ "${all[$i]}" =~ "$devname".+ ]] && continue 2
+            done
             if check_removable "$devname"; then
                 removable[${#removable[*]}]="$devname"
             else
