@@ -212,7 +212,7 @@ print_submenu_commands() {
 __print() {
     printf "${BOLD}"
     if (( pretty )); then
-        printf '%s\n\n' "$1" | sed -e "y/-/━/"
+        printf '%s\n\n' "$1" | sed -e "s/-/━/g"
     else
         printf '%s\n\n' "$1"
     fi
