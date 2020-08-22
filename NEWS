@@ -1,3 +1,6 @@
+bashmount 4.3.1 (2020-08-22)
+  - Use sed s/ instead of y/ as the strings are different lengths
+
 bashmount 4.3.0 (2020-07-02)
   - Fix bug when opening crypto_LUKS devices directly
   - Fix error message when an unmount fails
