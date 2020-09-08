@@ -112,7 +112,6 @@ fi
 # }}}
 
 # {{{ ··· PRINTING FUNCTIONS
-unset ALL_OFF BOLD BLUE GREEN RED
 if (( colourize )); then
     if tput setaf 0 >/dev/null 2>&1; then
         declare -r ALL_OFF="$(tput sgr0)"
@@ -127,6 +126,8 @@ if (( colourize )); then
         declare -r GREEN="${BOLD}\e[1;32m"
         declare -r RED="${BOLD}\e[1;31m"
     fi
+else
+    declare -r ALL_OFF="" BOLD="" BLUE="" GREEN="" RED=""
 fi
 declare -r ARROW="==>"
 
