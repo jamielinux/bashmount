@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=bashmount
+GenericName=Terminal Disk Mounter
+Comment=
+Exec=bashmount
+Terminal=true
+StartupWMClass=bashmount
+Type=Application
+Keywords=Disk;Mount;Automount;CLI;
+Icon=drive-removable-media
+Categories=Utility
+StartupNotify=true
