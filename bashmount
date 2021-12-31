@@ -346,8 +346,10 @@ print_device() {
             done
         fi
     elif check_mounted "$devname"; then
-        mountpath="$(info_mountpath "$devname")"
-        printf '%s' " ${GREEN}[$mountpath]${ALL_OFF}"
+        local -a mountpath_arr=()
+        info_mountpath_arr "$devname" mountpath_arr
+        printf -v mountpath "[%s] " "${mountpath_arr[@]}"
+        printf '%s' " ${GREEN}${mountpath}${ALL_OFF}"
         mounted[${#mounted[*]}]="$devname"
     fi
     printf '\n'
@@ -379,7 +381,11 @@ info_fstype() {
     lsblk -drno FSTYPE "$1" 2>/dev/null
 }
 info_mountpath() {
-    findmnt -no TARGET "$1" 2>/dev/null
+    findmnt -no TARGET "$1" 2>/dev/null | head -n1
+}
+info_mountpath_arr() {
+    local -n arr=$2
+    local IFS=$'\n'; arr=( $(findmnt -no TARGET "$1" 2>/dev/null) )
 }
 info_partlabel() {
     lsblk -drno PARTLABEL "$1" 2>/dev/null
@@ -704,8 +710,12 @@ submenu() {
     else
         printf '%s' " mounted   : "
         if (( mounted )); then
+            local -a mountpath_arr=()
             printf '%s\n' "${GREEN}yes${ALL_OFF}"
-            printf '%s\n' " mountpath : $(info_mountpath "$devname")"
+            info_mountpath_arr "$devname" mountpath_arr
+            for mountpath in "${mountpath_arr[@]}"; do
+                printf '%s\n' " mountpath : $mountpath"
+            done
         else
             printf '%s\n' "${RED}no${ALL_OFF}"
         fi
