@@ -586,7 +586,7 @@ list_devices() {
     for devname in "${all[@]}"; do
         # Hide excluded devices.
         for string in "${exclude[@]}"; do
-            lsblk -dPno NAME,TYPE,FSTYPE,LABEL,MOUNTPOINT,PARTLABEL,UUID "$devname" \
+            lsblk -dPno NAME,TYPE,FSTYPE,LABEL,MOUNTPOINT,PARTLABEL,UUID,PARTUUID,WWN "$devname" \
                 | grep -E "$string" >/dev/null 2>&1
             (( $? )) || continue 2
         done
