@@ -37,6 +37,10 @@ if (( $# > 0 )) && [[ "$1" == "-v" || "$1" == "--version" ]]; then
     exit 0
 fi
 
+# Change the terminal title and reset it on exit
+printf '\e[22t\e]0;bashmount\a'
+trap 'printf "\e[23t"' EXIT
+
 declare -ri EXIT_CMDNOTFOUND=127
 declare -ri EXIT_CONFIG=78
 
