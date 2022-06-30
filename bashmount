@@ -151,13 +151,14 @@ print_commands() {
     printf '\n\n'
     print_separator_commands
     printf '%s' " ${BLUE}e${ALL_OFF}: eject"
-    printf '%s' "          ${BLUE}i${ALL_OFF}: info"
-    printf '%s' "        ${BLUE}m${ALL_OFF}: mount"
-    printf '%s' "        ${BLUE}o${ALL_OFF}: open"
-    printf '%s' "        ${BLUE}u${ALL_OFF}: unmount"
+    printf '%s' "    ${BLUE}i${ALL_OFF}: info"
+    printf '%s' "    ${BLUE}m${ALL_OFF}: mount"
+    printf '%s' "    ${BLUE}o${ALL_OFF}: open"
+    printf '%s' "    ${BLUE}u${ALL_OFF}: unmount"
+    printf '%s' "    ${BLUE}[Enter]${ALL_OFF}: refresh"
     printf '\n\n'
-    printf '%s' " ${BLUE}[Enter]${ALL_OFF}: refresh"
-    printf '%s' "           ${BLUE}a${ALL_OFF}: unmount all"
+    printf '%s' " ${BLUE}t${ALL_OFF}: toggle internal"
+    printf '%s' "        ${BLUE}a${ALL_OFF}: unmount all"
     printf '%s' "        ${BLUE}q${ALL_OFF}: quit"
     printf '%s' "        ${BLUE}?${ALL_OFF}: help"
     printf '\n\n'
@@ -819,6 +820,7 @@ select_action() {
         fi
     else
         case "$action" in
+            "t") show_internal=$(( ! show_internal )) ;;
             "a")
                 if (( ! ${#mounted[*]} )); then
                     error "No devices mounted."
